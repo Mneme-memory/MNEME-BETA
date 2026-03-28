@@ -1,0 +1,244 @@
+# Mneme — Setup Guide for AI Assistants
+
+You are helping a user set up Mneme, a local AI memory system. They may have never used a terminal before. Walk them through each step one at a time — don't dump everything at once. Ask them to confirm each step succeeded before moving on. Be patient, be encouraging.
+
+## What Mneme is
+
+Mneme (Greek: memory) is a personal AI memory system that runs on the user's own computer. It wraps the Claude API with a persistent memory layer — semantic search, entity tracking, narrative concepts, daily timeline summaries, and AI-managed notes — so the AI can remember conversations from weeks or months ago.
+
+Key things to convey:
+- **Local-first**: All data stays on their machine in a SQLite database. No cloud, no accounts, no telemetry.
+- **Mobile-first UI**: Mneme is designed to be used from a phone browser. The server runs on their PC, and they access it from their phone via Tailscale (setup included below).
+- **How it works**: They talk to an AI through a web interface. Behind the scenes, Mneme stores every message, generates embeddings for semantic search, extracts entities, and builds daily summaries. When they talk about something, the system automatically retrieves relevant past conversations.
+- **Cost**: API usage costs depend on model choice and message volume. Haiku is cheapest ($3–8/month at light usage). Sonnet at moderate use runs $30–60/month. Heavy Sonnet usage with extended thinking can reach $100–180/month. OpenAI embeddings are negligible (cents/month).
+- **Profiles**: They can run multiple AI instances with different personalities, memories, and settings. Each profile is independent.
+- **Commands**: The AI can use special commands like @recall (search memories), @remember (mark important moments), @note (persistent notes), @run (execute code), and more. These happen automatically — the user doesn't need to learn them.
+
+## Common questions users might ask
+
+**"Is this like ChatGPT?"** — It's similar but different. Mneme uses Claude (by Anthropic) as the AI, and adds real long-term memory. ChatGPT forgets between sessions; Mneme remembers everything.
+
+**"Who can see my conversations?"** — Nobody. The data never leaves their computer. API calls go directly to Anthropic/OpenAI — Mneme has no server in between. The code is open source so they can verify this.
+
+**"How much does it cost?"** — They need API keys from Anthropic and OpenAI (cents/month for embeddings). There's no charge for Mneme itself. Monthly Anthropic costs vary: ~$3–8 on Haiku with light use, ~$30–60 on Sonnet with moderate use, or $100–180+ on Sonnet with heavy daily use and extended thinking.
+
+**"Can I use it on my phone?"** — Yes, that's the primary use case. They set up Tailscale (free) and access Mneme from their phone's browser. Setup is included below.
+
+**"What if I lose my computer?"** — Their memories are in the `data/` folder. If they back that up (or use something like OneDrive/Dropbox on that folder), they can restore on a new machine.
+
+**"Can I customize the AI's personality?"** — Yes. The file `system_instructions.txt` controls the AI. The top part has system instructions for how to use memory and commands — keep that intact. Add personality, tone, or behavioral instructions at the end of the file.
+
+## Requirements
+
+- Windows 10/11, macOS, or Linux
+- Python 3.9+ (they probably need to install this)
+- An Anthropic API key (for the AI — https://console.anthropic.com/)
+- An OpenAI API key (for embeddings/search — https://platform.openai.com/)
+- Optional: ElevenLabs API key for text-to-speech
+- Tailscale for mobile access (free) — the installer offers to install this automatically
+
+### What the installer installs
+
+The installer runs `pip install -r requirements.txt`. These are the Python packages Mneme uses:
+
+- `anthropic` — Anthropic/Claude API client (the AI)
+- `openai` — OpenAI API client (for text embeddings that power semantic search)
+- `flask`, `flask-cors` — Local web server
+- `numpy` — Vector math for similarity search
+- `tiktoken` — Token counting for prompt budget management
+- `Pillow` — Image processing for file attachments
+- `pdfplumber`, `pdfminer.six` — PDF text extraction
+- `pystray` — System tray icon
+- `elevenlabs` — Text-to-speech (optional feature)
+- `requests` — HTTP client
+
+Nothing is installed system-wide or outside the Python environment. No background services, no registry entries, no startup items (unless they choose to add one).
+
+## Setup steps
+
+### 1. Install Python
+
+On Windows: download from https://www.python.org/downloads/ — the big yellow button. During installation, they MUST check "Add Python to PATH" (it's a checkbox at the bottom of the first installer screen). This is the single most common setup failure.
+
+On macOS: `brew install python` or download from python.org.
+
+Verify: have them open a terminal and run `python --version` (or `python3 --version` on macOS/Linux). They need 3.9+.
+
+### 2. Get API keys
+
+Walk them through getting each key. They need to create accounts and add payment methods.
+
+**Anthropic** (required — powers the AI):
+- Go to https://console.anthropic.com/
+- Create account → Settings → API Keys → Create Key
+- They need to add a payment method (credit card). Cost depends on model and usage — from ~$3/month on Haiku to $100+/month on Sonnet with heavy use.
+
+**OpenAI** (required — powers memory search):
+- Go to https://platform.openai.com/
+- Create account → API Keys → Create new secret key
+- They need to add a payment method. Embedding costs are negligible (cents/month).
+
+**ElevenLabs** (optional — text-to-speech):
+- https://elevenlabs.io/ — skip if they don't want TTS.
+
+### 3. Download Mneme
+
+They can either:
+- **Clone with git**: `git clone https://github.com/mhuuh/Mneme.git` then `cd Mneme`
+- **Download ZIP**: from the GitHub page → Code → Download ZIP, then extract it somewhere memorable
+
+### 4. Run the installer
+
+The installer handles dependencies, config files, and creates shortcuts automatically.
+
+**Windows:** Double-click `install-windows.bat` in the Mneme folder.
+
+**macOS / Linux:** Open a terminal in the Mneme folder and run `bash install-mac-linux.sh`.
+
+The installer will:
+- Check their Python version
+- Install all dependencies
+- Create necessary config files
+- Offer to install Tailscale for mobile access (Windows)
+- Create a desktop shortcut and a "Launch Mneme" shortcut in the folder
+
+If the installer fails, see the "Manual setup" section at the bottom of this document.
+
+### 5. Launch Mneme
+
+**Windows:** Double-click the "Launch Mneme" shortcut (on their desktop or in the Mneme folder). Mneme starts in the system tray — look for the icon near the clock, bottom-right. Right-click it for options.
+
+**macOS / Linux:** Launch from the application menu, or run `python3 scripts/tray.py` in a terminal.
+
+On first launch, they'll see a welcome notification. Their browser will open to http://localhost:8080 with the setup wizard.
+
+### 6. Complete the setup wizard
+
+The in-app wizard asks for:
+- API keys (Anthropic, OpenAI, optionally ElevenLabs)
+- Their name
+- AI instance name and model preference
+
+They paste their API keys here — no need to edit any config files.
+
+### 7. Set up Tailscale (mobile access)
+
+This is how they'll use Mneme from their phone — it creates a secure private network between their devices. On Windows, the installer may have already installed Tailscale — if so, they just need to sign in and set up their phone.
+
+**On their computer (skip if the installer already handled this):**
+1. Download Tailscale from https://tailscale.com/download
+2. Install and sign in (Google/Microsoft/GitHub account works)
+3. Tailscale runs in the system tray. Right-click the icon to confirm it's connected.
+4. Note their computer's Tailscale IP — visible in the Tailscale app (looks like `100.x.y.z`)
+
+**On their phone:**
+1. Install the Tailscale app (App Store / Google Play)
+2. Sign in with the same account they used on their computer
+3. Both devices are now on the same private network
+
+**Accessing Mneme from phone:**
+- Make sure Mneme is running (tray icon should be colored, not gray)
+- On their phone's browser, go to `http://100.x.y.z:8080` (using their computer's Tailscale IP)
+- Bookmark it for easy access. It works like a native app.
+
+**Tailscale notes:**
+- Free for personal use (up to 100 devices)
+- The connection is encrypted end-to-end
+- Their computer needs to be on and Mneme running for phone access to work
+- If the Tailscale IP changes (rare), they can find the new one in the Tailscale app
+
+## After setup
+
+- They'll create their first profile on the welcome screen (the UI walks them through choosing a model and naming their AI)
+- All settings are configurable from the gear icon in the app — no need to touch config files
+- To start Mneme: double-click the "Launch Mneme" shortcut. The tray icon is colored when the server is running, gray when stopped.
+- Data lives in the `data/` folder. As long as they don't delete that folder, their memories are safe.
+- The `system_instructions.txt` file controls the AI. The top part teaches it how to use memory, commands, etc. — don't delete that. To personalize, add their own instructions at the end of the file.
+
+## Importing existing conversations
+
+If they already have conversations in Claude or ChatGPT that they want Mneme to remember:
+
+1. They need to export their conversation as a JSON file. Browser extensions exist that can do this — they should search for one that exports to JSON format.
+
+### JSON input format
+
+The import script auto-detects the format. Any of the following structures work:
+
+**Simple format (recommended for manual exports):**
+```json
+[
+  {"role": "user", "content": "Hello!", "timestamp": "2025-01-15T10:30:00Z"},
+  {"role": "assistant", "content": "Hi there!", "timestamp": "2025-01-15T10:30:05Z"}
+]
+```
+
+**Wrapped in an object:**
+```json
+{
+  "messages": [
+    {"role": "user", "content": "Hello!", "timestamp": "2025-01-15T10:30:00Z"},
+    {"role": "assistant", "content": "Hi there!", "timestamp": "2025-01-15T10:30:05Z"}
+  ]
+}
+```
+
+**Claude.ai export format (from browser extensions):**
+```json
+{"chat_messages": [{"sender": "human", "text": "Hello!", "timestamp": "..."}, ...]}
+```
+
+**ChatGPT export format:**
+```json
+{"mapping": {"node-id": {"message": {"author": {"role": "user"}, "content": {"parts": ["Hello!"]}, "create_time": 1705312200}}}}
+```
+
+**Field flexibility:**
+- **Role**: `role`, `sender`, or `author` — values `user`/`human` → user, `assistant`/`ai`/`bot` → assistant
+- **Content**: `content`, `text`, `body`, or `message` — string or `{"parts": ["..."]}` (ChatGPT style)
+- **Timestamp**: `timestamp`, `created_at`, `create_time`, `date`, or `time` — ISO 8601 string or Unix timestamp (seconds). If omitted, messages are ordered by their position in the array.
+
+2. Run the import script:
+   - Windows: `python scripts\import_conversation.py path\to\export.json`
+   - macOS/Linux: `python3 scripts/import_conversation.py path/to/export.json`
+3. The script will parse their messages, insert them into the database, and then offer to run the enrichment pipeline (embeddings, entity discovery, importance scoring, summaries).
+4. Enrichment uses API calls and costs money. The script shows a cost estimate before proceeding. For 1000 messages, expect roughly $2–5 and 15–60 minutes. They can interrupt with Ctrl+C and resume later with `--resume`.
+5. After import, narrative concepts won't exist yet — the AI creates those organically as they continue chatting.
+
+If they just want to import the messages without the enrichment (free, instant): add `--skip-enrichment` to the command. The AI will still work, just without entity summaries and daily timeline for the imported period.
+
+## Common issues
+
+**"python is not recognized"**: Python isn't in PATH. Reinstall Python and check "Add to PATH".
+
+**"No module named X"**: Dependencies not installed. Run the installer again, or manually: `pip install -r requirements.txt`.
+
+**"API key invalid"**: They pasted the key wrong in the setup wizard, or it has extra spaces. Go to Settings (gear icon) to re-enter it.
+
+**Port 8080 in use**: Another app is using that port. They can change `server_port` in the Settings page or in config.json.
+
+**"Connection refused" in browser**: The server isn't running. Check the tray icon — if it's gray, right-click and choose "Start server".
+
+**Tray icon missing**: Look for hidden icons — click the `^` arrow near the clock (Windows). The icon may be in the overflow area.
+
+**Ghost server after crash**: If Mneme was force-closed, the server might still be running in the background. Relaunching Mneme will automatically clean up the old process.
+
+**Can't reach Mneme from phone**: Check that Tailscale is running on both devices, both are signed into the same account, and Mneme's tray icon is colored (not gray). Try pinging the Tailscale IP from the phone.
+
+## Manual setup (if installer fails)
+
+If the installer doesn't work, they can set up manually:
+
+```
+pip install -r requirements.txt
+cp config.example.json config.json
+cp system_instructions.example.txt system_instructions.txt
+python scripts/verify_setup.py
+python src/backend/server.py
+```
+
+On Windows, use `copy` instead of `cp`. Then open http://localhost:8080 and complete the setup wizard.
+
+## Privacy reassurance
+
+All data stays on their computer. API keys are stored locally in config.json and sent only to the respective API providers (Anthropic, OpenAI, ElevenLabs). Mneme has no server, no accounts, no telemetry. The code is open source — they can verify this themselves. Tailscale traffic is encrypted end-to-end and doesn't pass through any Mneme infrastructure.
