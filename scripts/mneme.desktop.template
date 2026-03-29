@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Mneme
+Comment=Start Mneme Memory System
+Exec=python3 MNEME_PATH/scripts/tray.py
+Icon=MNEME_PATH/Logos/tray/48.png
+Type=Application
+Categories=Utility;
+Terminal=false
+StartupNotify=false

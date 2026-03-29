@@ -1,0 +1,200 @@
+{
+  "_comment": "Mneme Memory System — Configuration. Copy to config.json and fill in your API keys.",
+
+  "api_keys": {
+    "anthropic": "YOUR_ANTHROPIC_API_KEY_HERE",
+    "openai": "YOUR_OPENAI_API_KEY_HERE",
+    "_openai_note": "Used for embeddings (supports EU payment methods)",
+    "elevenlabs": "",
+    "_elevenlabs_note": "Optional: for text-to-speech"
+  },
+
+  "storage": {
+    "active_profile": "main",
+    "_profile_note": "Switch between memory databases: 'main', 'testing', etc. Each gets its own data folder.",
+    "database_path": "./data/{profile}/memory.db",
+    "backup_path": "./data/{profile}/backups/"
+  },
+
+  "identity": {
+    "user_name": "",
+    "_user_name_note": "Your name (used in timeline summaries and entity extraction). Defaults to 'Human'.",
+    "instance_name": "",
+    "_instance_name_note": "AI instance name. Defaults to 'Assistant'."
+  },
+
+  "model": {
+    "default": "claude-sonnet-4-6",
+    "_default_note": "Main conversation model. Also works: claude-opus-4-6, claude-haiku-4-5",
+    "testing": "claude-haiku-4-5",
+    "_testing_note": "Cheap model for development. Used when use_testing is true.",
+    "use_testing": false,
+    "provider": "anthropic",
+    "temperature": 1.0,
+    "_temperature_note": "Response randomness (0–1). Ignored when thinking is enabled (Anthropic requires 1.0).",
+    "max_tokens": 16000,
+    "_max_tokens_note": "Max output tokens per response. 16k handles long responses and artifacts. Increase if responses get cut off.",
+    "streaming": true,
+    "_streaming_note": "Real-time streaming responses via SSE. Strongly recommended."
+  },
+
+  "thinking": {
+    "enabled": true,
+    "_enabled_note": "Extended thinking (chain-of-thought) before responses. Requires streaming.",
+    "budget_tokens": 5000,
+    "_budget_note": "Max tokens for thinking. model.max_tokens must be larger than this. Higher = deeper reasoning but more cost.",
+    "show_in_ui": true
+  },
+
+  "context": {
+    "recent_messages_tokens": 50000,
+    "_recent_note": "Token budget for recent conversation history (active tier). Safe range: 30k–500k. Higher = more history in context but higher costs.",
+    "duplicate_window_minutes": 30,
+    "_duplicate_note": "Don't retrieve the same memory twice within this window."
+  },
+
+  "retrieval": {
+    "embeddings_model": "text-embedding-3-small",
+    "embeddings_dimensions": 1536,
+    "max_results": 10,
+    "_max_results_note": "Maximum memories to retrieve per query. More = better recall but higher costs.",
+    "similarity_threshold": 0.25,
+    "_threshold_note": "Minimum semantic similarity (0–1). 0.25 is sweet spot for OpenAI embeddings.",
+    "semantic_weight": 0.4,
+    "importance_weight": 0.4,
+    "recency_weight": 0.2,
+    "entity_match_weight": 0.15,
+    "_weights_note": "Retrieval score = (semantic × ~0.34) + (importance × ~0.34) + (recency × ~0.17) + (entity_match × 0.15). entity_match combines keyword hits in message content with entity-link confidence when an entity name/alias appears in the query. Set to 0 to disable. Other weights rescale automatically.",
+    "deep_archive_age_days": 180,
+    "_archive_note": "Messages older than this go to deep archive (requires @recall --deep to search).",
+    "embedding_immediate": true,
+    "_embedding_note": "Generate embeddings immediately after each message.",
+    "importance_rubric": {
+      "1-2": "Small talk, acknowledgments",
+      "3-4": "Casual discussion",
+      "5-6": "Substantial ideas",
+      "7-8": "Key insights, important decisions",
+      "9": "Major breakthroughs",
+      "10": "Critical moments (manual override only)"
+    }
+  },
+
+  "caching": {
+    "enabled": true,
+    "_enabled_note": "Adaptive prompt caching. Saves 50–70% on active conversations, no penalty on sparse usage.",
+    "extended_ttl": true,
+    "_ttl_note": "Use 1-hour cache (true) or 5-minute cache (false). 1h recommended.",
+    "adaptive_threshold_minutes": 60,
+    "_threshold_note": "Skip caching if no messages for this long (avoids paying write premium on cold starts). 0 = always cache.",
+    "transition_interval_minutes": 55,
+    "_transition_note": "Align tier transitions with cache expiry (55min = 5min before 1h cache expires).",
+    "auto_rebalance_on_startup": true,
+    "track_metrics": true
+  },
+
+  "features": {
+    "concepts": {
+      "enabled": true,
+      "_enabled_note": "Narrative concept layer — keyword-triggered interpretive meta-memories.",
+      "message_window": 5,
+      "_window_note": "Recent messages to scan for keyword matches.",
+      "max_concepts_retrieved": 2,
+      "auto_extract": true,
+      "auto_extract_frequency": 40,
+      "_frequency_note": "Prompt AI to check for new concepts every N messages.",
+      "auto_extract_min_words": 100,
+      "auto_extract_max_words": 500
+    },
+
+    "attachments": {
+      "enabled": true,
+      "_enabled_note": "File attachments — images, PDF, text, JSON.",
+      "max_files_displayed": 5,
+      "auto_retrieve_threshold": 0.35,
+      "describe_reminder": true,
+      "_reminder_note": "Remind AI to describe files that lack descriptions.",
+      "storage": {
+        "path": "./data/{profile}/attachments/",
+        "max_file_size_mb": 25,
+        "image_max_dimension": 1568,
+        "_dimension_note": "Resize larger images (1568 optimal for Claude vision).",
+        "thumbnail_size": 300
+      },
+      "supported_types": {
+        "images": ["image/jpeg", "image/png", "image/gif", "image/webp"],
+        "documents": ["application/pdf"],
+        "text": ["text/plain", "text/markdown", "text/csv"],
+        "data": ["application/json"]
+      }
+    },
+
+    "entity_summaries": {
+      "enabled": true,
+      "_enabled_note": "Automatically generated historical context per entity. Also enables @graph command and entity extraction.",
+      "auto_extract_entities": true,
+      "_extract_note": "Automatically extract entities from new messages.",
+      "max_entities_per_retrieval": 3,
+      "incremental_update_limit": 10,
+      "_update_note": "After this many incremental updates, regenerate summary from scratch.",
+      "assignment_batch_size": 30
+    },
+
+    "tts": {
+      "enabled": true,
+      "_enabled_note": "Text-to-speech via ElevenLabs. Requires api_keys.elevenlabs.",
+      "model_id": "eleven_flash_v2_5",
+      "voice_id": "86DSREGT0ynChViVr49a",
+      "_voice_note": "Find voices at elevenlabs.io/voices",
+      "output_format": "mp3_44100_128",
+      "cache_enabled": true
+    },
+
+    "timeline": {
+      "enabled": true,
+      "_enabled_note": "7-day rolling window of daily summaries for temporal context.",
+      "days_to_show": 7,
+      "max_tokens_per_day": 400,
+      "summary_model": "claude-haiku-4-5",
+      "temperature": 0.3
+    },
+
+    "notes": {
+      "enabled": true,
+      "_enabled_note": "Persistent AI-managed notes organized in named sections.",
+      "max_tokens": 5000,
+      "cleanup_threshold_pct": 80,
+      "_cleanup_note": "Show cleanup warning when notes exceed this % of max_tokens.",
+      "cleanup_interval_messages": 50,
+      "_interval_note": "Inject cleanup reminder every N messages. 0 to disable."
+    }
+  },
+
+  "commands": {
+    "max_iterations": 6,
+    "_iterations_note": "Max AI continuation loops per message (prevents infinite command loops).",
+    "instance_autonomy": [
+      "similarity_threshold",
+      "semantic_weight",
+      "importance_weight",
+      "recency_weight",
+      "recent_messages_tokens",
+      "temperature"
+    ],
+    "_autonomy_note": "Parameters the AI can adjust via @config without user approval."
+  },
+
+  "costs": {
+    "monthly_budget_usd": 50.0,
+    "_budget_note": "Alert when monthly costs approach this amount. Adjust to your expected usage: ~$3-8 on Haiku, ~$30-60 on Sonnet, $100-180+ on heavy Sonnet with thinking.",
+    "alert_threshold": 0.8,
+    "_alert_note": "Alert when this fraction of budget is reached (0.8 = 80%).",
+    "track_costs": true,
+    "_tracking_note": "Log all API costs to help monitor spending."
+  },
+
+  "system": {
+    "server_port": 8080,
+    "debug_endpoints": false,
+    "_debug_note": "Enable /api/debug/* endpoints (disabled by default for security)."
+  }
+}
