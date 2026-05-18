@@ -1,0 +1,82 @@
+# Mneme Memory System - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# ============================================================================
+# Core
+# ============================================================================
+
+# Flask web server
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# AI providers
+anthropic>=0.18.0
+openai>=1.12.0
+
+# Embeddings and token counting
+numpy>=1.24.0
+tiktoken>=0.5.0
+
+# ============================================================================
+# File Processing
+# ============================================================================
+
+# Image processing (resize, thumbnails, format conversion)
+Pillow>=10.0.0
+
+# PDF text extraction (optional, graceful fallback if missing)
+pdfplumber>=0.10.0
+
+# PDF page rendering (optional, requires poppler)
+# Note: On Windows, you need to install poppler separately
+# pdf2image>=1.16.0
+
+# ============================================================================
+# Optional Features
+# ============================================================================
+
+# ElevenLabs TTS
+elevenlabs>=1.0.0
+
+# System tray launcher (used by scripts/tray.py)
+pystray>=0.19.0
+
+# ============================================================================
+# Development (Optional)
+# ============================================================================
+# pytest>=8.0.0           # Tests
+# black>=24.0.0           # Code formatter
+# pylint>=3.0.0           # Linter
+# mypy>=1.8.0             # Type checking
+
+# ============================================================================
+# NOTES FOR WINDOWS 11 USERS
+# ============================================================================
+#
+# Installation instructions:
+#
+# 1. Open Command Prompt (cmd) or PowerShell
+#    - Press Win + R
+#    - Type "cmd" and press Enter
+#
+# 2. Navigate to the Mneme project folder:
+#    cd C:\path\to\Mneme
+#
+# 3. Install dependencies:
+#    pip install -r requirements.txt
+#
+# 4. If you get permission errors, try:
+#    python -m pip install --user -r requirements.txt
+#
+# Common issues:
+#
+# - "pip is not recognized": Python is not in your PATH
+#   Solution: Reinstall Python and check "Add to PATH" during installation
+#
+# - "Could not find a version": You need to update pip
+#   Solution: python -m pip install --upgrade pip
+#
+# - Permission denied: You need admin rights
+#   Solution: Right-click Command Prompt → "Run as administrator"
+#
+# ============================================================================

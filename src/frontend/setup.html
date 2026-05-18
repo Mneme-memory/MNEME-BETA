@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mneme — Setup</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="setup.css">
+</head>
+<body>
+    <div class="setup-container">
+
+        <!-- Step 0: Welcome -->
+        <div class="setup-step active" id="step0">
+            <img src="assets/mneme-logo.svg" alt="Mneme" class="setup-logo" onerror="this.style.display='none'">
+            <h1 class="setup-headline" id="headline0">Welcome to Mneme</h1>
+            <p class="setup-desc">A local-first AI memory system.<br>All your data stays on your device.</p>
+            <button class="setup-btn" id="beginBtn">Let's get started</button>
+        </div>
+
+        <!-- Step 1: Your name -->
+        <div class="setup-step" id="step1">
+            <h1 class="setup-headline">What's your name?</h1>
+            <p class="setup-desc">Used in timeline summaries and entity extraction.</p>
+            <input type="text" class="setup-input" id="userName" placeholder="Your name" autocomplete="off" spellcheck="false">
+            <div class="setup-nav">
+                <button class="setup-btn-back" data-back>Back</button>
+                <button class="setup-btn" data-next>Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Anthropic API key -->
+        <div class="setup-step" id="step2">
+            <h1 class="setup-headline">Anthropic API key</h1>
+            <p class="setup-desc">
+                Powers the AI conversations. Get yours at
+                <a href="https://console.anthropic.com/" target="_blank" rel="noopener">console.anthropic.com</a>
+            </p>
+            <input type="password" class="setup-input mono" id="anthropicKey" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+            <div class="setup-nav">
+                <button class="setup-btn-back" data-back>Back</button>
+                <button class="setup-btn" data-next>Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 3: OpenAI API key -->
+        <div class="setup-step" id="step3">
+            <h1 class="setup-headline">OpenAI API key</h1>
+            <p class="setup-desc">
+                Used for text embeddings (semantic search). Get one at
+                <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a>
+            </p>
+            <input type="password" class="setup-input mono" id="openaiKey" placeholder="sk-..." autocomplete="off" spellcheck="false">
+            <div class="setup-nav">
+                <button class="setup-btn-back" data-back>Back</button>
+                <button class="setup-btn" data-next>Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 4: ElevenLabs (optional) -->
+        <div class="setup-step" id="step4">
+            <h1 class="setup-headline">ElevenLabs API key</h1>
+            <p class="setup-desc">
+                Optional — enables text-to-speech. Get one at
+                <a href="https://elevenlabs.io/" target="_blank" rel="noopener">elevenlabs.io</a>
+            </p>
+            <input type="password" class="setup-input mono" id="elevenlabsKey" placeholder="Optional" autocomplete="off" spellcheck="false">
+            <div class="setup-nav">
+                <button class="setup-btn-back" data-back>Back</button>
+                <button class="setup-btn" data-next>Skip</button>
+            </div>
+        </div>
+
+        <!-- Step 5: Instance name -->
+        <div class="setup-step" id="step5">
+            <h1 class="setup-headline">Name your first instance</h1>
+            <p class="setup-desc">What should this AI call itself? You can create more instances later.</p>
+            <input type="text" class="setup-input" id="instanceName" placeholder="e.g. Kali, Atlas, just Claude..." autocomplete="off" spellcheck="false">
+            <div class="setup-nav">
+                <button class="setup-btn-back" data-back>Back</button>
+                <button class="setup-btn" data-next>Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 6: Model selection -->
+        <div class="setup-step" id="step6">
+            <h1 class="setup-headline">Pick a model</h1>
+            <p class="setup-desc">You can change this anytime in settings.</p>
+            <div class="setup-models-wrap">
+                <div class="setup-models">
+                    <button class="setup-model-item" data-model-id="claude-opus-4-7">
+                        <img src="assets/model-opus.svg" alt="" width="22" height="22">
+                        <div class="setup-model-info">
+                            <span class="setup-model-name">Opus <span class="setup-model-version">4.7</span></span>
+                            <span class="setup-model-desc">Most capable, higher cost</span>
+                        </div>
+                    </button>
+                    <button class="setup-model-item" data-model-id="claude-sonnet-4-6">
+                        <img src="assets/model-sonnet.svg" alt="" width="22" height="22">
+                        <div class="setup-model-info">
+                            <span class="setup-model-name">Sonnet <span class="setup-model-version">4.6</span></span>
+                            <span class="setup-model-desc">Balanced performance and cost</span>
+                        </div>
+                    </button>
+                    <button class="setup-model-item setup-model-featured" data-model-id="claude-sonnet-4-5">
+                        <img src="assets/model-sonnet.svg" alt="" width="22" height="22">
+                        <div class="setup-model-info">
+                            <span class="setup-model-name">Sonnet <span class="setup-model-version">4.5</span></span>
+                            <span class="setup-model-desc setup-model-note">Available in Mneme</span>
+                        </div>
+                    </button>
+                    <button class="setup-model-item" data-model-id="claude-haiku-4-5">
+                        <img src="assets/model-haiku.svg" alt="" width="22" height="22">
+                        <div class="setup-model-info">
+                            <span class="setup-model-name">Haiku <span class="setup-model-version">4.5</span></span>
+                            <span class="setup-model-desc">Fast and lightweight</span>
+                        </div>
+                    </button>
+                </div>
+                <div class="setup-models-others" id="setupOthersBtn">Others</div>
+            </div>
+            <div class="setup-nav">
+                <button class="setup-btn-back" data-back>Back</button>
+                <button class="setup-btn" id="finishBtn">Finish setup</button>
+            </div>
+        </div>
+
+        <!-- Step 7: Completing -->
+        <div class="setup-step" id="step7">
+            <h1 class="setup-headline" id="completingHeadline">Setting things up...</h1>
+            <p class="setup-desc" id="completingDesc">Creating your configuration and initializing the database.</p>
+        </div>
+
+        <!-- Privacy note (always visible at bottom) -->
+        <div class="setup-privacy" id="privacyNote">
+            Your API keys are stored locally on this device only. They are sent directly to
+            Anthropic/OpenAI/ElevenLabs — Mneme has no server, no telemetry, no account.
+        </div>
+
+    </div>
+
+    <script>
+    (function() {
+        // ─── State ───
+        let currentStep = 0;
+        const totalSteps = 8; // 0-7
+        let selectedModel = 'claude-sonnet-4-6';
+
+        const steps = [];
+        for (let i = 0; i < totalSteps; i++) {
+            steps.push(document.getElementById('step' + i));
+        }
+
+        // ─── Navigation ───
+
+        function showStep(n, direction) {
+            const prev = steps[currentStep];
+            const next = steps[n];
+            if (!prev || !next) return;
+
+            // Slide out current
+            prev.classList.remove('active');
+            prev.classList.add(direction === 'forward' ? 'exit-left' : 'exit-right');
+
+            // Slide in new
+            next.classList.remove('exit-left', 'exit-right');
+            next.classList.add(direction === 'forward' ? 'enter-right' : 'enter-left');
+
+            // Force reflow so the enter class applies from the offset position
+            next.offsetHeight;
+            next.classList.remove('enter-right', 'enter-left');
+            next.classList.add('active');
+
+            // Clean up old step after transition
+            setTimeout(() => {
+                prev.classList.remove('exit-left', 'exit-right', 'active');
+            }, 350);
+
+            currentStep = n;
+
+            // Focus the input if there is one
+            const input = next.querySelector('.setup-input');
+            if (input) setTimeout(() => input.focus(), 360);
+        }
+
+        function goNext() {
+            // Validation
+            if (currentStep === 2) {
+                const key = document.getElementById('anthropicKey').value.trim();
+                if (!key) {
+                    shakeInput(document.getElementById('anthropicKey'));
+                    return;
+                }
+            }
+            if (currentStep === 3) {
+                const key = document.getElementById('openaiKey').value.trim();
+                if (!key) {
+                    shakeInput(document.getElementById('openaiKey'));
+                    return;
+                }
+            }
+
+            // Update skip/continue label on ElevenLabs step
+            if (currentStep === 3) {
+                const el = steps[4].querySelector('[data-next]');
+                // Will show "Skip" by default, changes to "Continue" if key entered
+            }
+
+            if (currentStep < totalSteps - 1) {
+                showStep(currentStep + 1, 'forward');
+            }
+        }
+
+        function goBack() {
+            if (currentStep > 0) {
+                showStep(currentStep - 1, 'backward');
+            }
+        }
+
+        function shakeInput(el) {
+            el.classList.add('shake');
+            el.focus();
+            setTimeout(() => el.classList.remove('shake'), 500);
+        }
+
+        // ─── Event listeners ───
+
+        // Begin button
+        document.getElementById('beginBtn').addEventListener('click', goNext);
+
+        // All next/back buttons
+        document.querySelectorAll('[data-next]').forEach(btn => {
+            btn.addEventListener('click', goNext);
+        });
+        document.querySelectorAll('[data-back]').forEach(btn => {
+            btn.addEventListener('click', goBack);
+        });
+
+        // Enter key advances from input
+        document.querySelectorAll('.setup-input').forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    goNext();
+                }
+            });
+        });
+
+        // ElevenLabs: update button label based on input
+        document.getElementById('elevenlabsKey').addEventListener('input', (e) => {
+            const btn = steps[4].querySelector('[data-next]');
+            btn.textContent = e.target.value.trim() ? 'Continue' : 'Skip';
+        });
+
+        // Model selection — hover highlights, click collapses, tap to reopen
+        const modelsWrap = document.querySelector('.setup-models-wrap');
+        const modelsCard = document.querySelector('.setup-models');
+        const modelsOthers = document.querySelector('.setup-models-others');
+        let modelsCollapsed = false;
+
+        // Others — swap card contents between main and alt models
+        const othersBtn = document.getElementById('setupOthersBtn');
+        let showingOthers = false;
+
+        // Alt model definitions
+        const altModels = [
+            { id: 'claude-opus-4-6', icon: 'assets/model-opus.svg', name: 'Opus', version: '4.6', desc: 'Legacy Opus' },
+            { id: 'claude-opus-4-5', icon: 'assets/model-opus.svg', name: 'Opus', version: '4.5', desc: 'Previous generation' },
+        ];
+
+        // Store original main items HTML
+        const mainItemsHTML = modelsCard.innerHTML;
+
+        function buildAltItems() {
+            return altModels.map(m =>
+                `<button class="setup-model-item" data-model-id="${m.id}">
+                    <img src="${m.icon}" alt="" width="22" height="22">
+                    <div class="setup-model-info">
+                        <span class="setup-model-name">${m.name} <span class="setup-model-version">${m.version}</span></span>
+                        <span class="setup-model-desc">${m.desc}</span>
+                    </div>
+                </button>`
+            ).join('');
+        }
+
+        function bindCardItems() {
+            // Re-bind hover + click on whatever items are currently in the card
+            const items = modelsCard.querySelectorAll('.setup-model-item');
+            items.forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    if (modelsCollapsed) return;
+                    items.forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                });
+                item.addEventListener('click', () => {
+                    if (modelsCollapsed) {
+                        // Reopen — restore to main view
+                        modelsCollapsed = false;
+                        showingOthers = false;
+                        modelsCard.innerHTML = mainItemsHTML;
+                        modelsCard.classList.remove('collapsed');
+                        modelsOthers.style.display = '';
+                        othersBtn.textContent = 'Others';
+                        bindCardItems();
+                        // Highlight current selection
+                        modelsCard.querySelectorAll('.setup-model-item').forEach(i => {
+                            i.classList.toggle('selected', i.dataset.modelId === selectedModel);
+                        });
+                        return;
+                    }
+                    // Select + collapse
+                    selectedModel = item.dataset.modelId;
+                    modelsCollapsed = true;
+                    modelsCard.classList.add('collapsed');
+                    modelsOthers.style.display = 'none';
+                    items.forEach(i => {
+                        if (i.dataset.modelId === selectedModel) {
+                            i.classList.add('selected');
+                            i.style.display = '';
+                        } else {
+                            i.classList.remove('selected');
+                            i.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        }
+
+        // Initial bind
+        bindCardItems();
+
+        othersBtn.addEventListener('click', () => {
+            if (showingOthers) {
+                // Back to main
+                showingOthers = false;
+                modelsCard.innerHTML = mainItemsHTML;
+                othersBtn.textContent = 'Others';
+                bindCardItems();
+                modelsCard.querySelectorAll('.setup-model-item').forEach(i => {
+                    i.classList.toggle('selected', i.dataset.modelId === selectedModel);
+                });
+            } else {
+                // Show alt models
+                showingOthers = true;
+                modelsCard.innerHTML = buildAltItems();
+                othersBtn.textContent = 'Back';
+                bindCardItems();
+            }
+        });
+
+        // Finish button
+        document.getElementById('finishBtn').addEventListener('click', submitSetup);
+
+        // ─── Submit ───
+
+        async function submitSetup() {
+            showStep(7, 'forward');
+
+            const payload = {
+                user_name: document.getElementById('userName').value.trim(),
+                anthropic_key: document.getElementById('anthropicKey').value.trim(),
+                openai_key: document.getElementById('openaiKey').value.trim(),
+                elevenlabs_key: document.getElementById('elevenlabsKey').value.trim(),
+                instance_name: document.getElementById('instanceName').value.trim() || 'Assistant',
+                model: selectedModel
+            };
+
+            try {
+                const res = await fetch('/api/setup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || 'Setup failed');
+                }
+
+                // Success — redirect to main app
+                document.getElementById('completingHeadline').textContent = 'You\'re all set!';
+                document.getElementById('completingDesc').textContent = 'Redirecting to Mneme...';
+
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1200);
+
+            } catch (e) {
+                document.getElementById('completingHeadline').textContent = 'Something went wrong';
+                document.getElementById('completingDesc').textContent = e.message;
+
+                // Add a retry button
+                const retryBtn = document.createElement('button');
+                retryBtn.className = 'setup-btn';
+                retryBtn.textContent = 'Try again';
+                retryBtn.style.marginTop = '20px';
+                retryBtn.addEventListener('click', () => {
+                    retryBtn.remove();
+                    showStep(6, 'backward');
+                });
+                steps[7].appendChild(retryBtn);
+            }
+        }
+    })();
+    </script>
+</body>
+</html>

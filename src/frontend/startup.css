@@ -1,0 +1,97 @@
+:root {
+    --slate: #262624;
+    --gravel: #30302e;
+    --chalk: #76746e;
+    --white: #f4f0e8;
+    --coral: #d97757;
+    --font-serif: "Source Serif 4", Georgia, serif;
+    --font-mono: "Fira Code", monospace;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--slate);
+    color: var(--white);
+    font-family: var(--font-serif);
+}
+
+body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+}
+
+.startup-shell {
+    width: min(420px, calc(100vw - 48px));
+    min-height: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    text-align: center;
+}
+
+.startup-canvas {
+    width: 82px;
+    height: 88px;
+    display: block;
+}
+
+.startup-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.startup-wordmark {
+    width: 126px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+h1 {
+    margin: 0;
+    max-width: 100%;
+    font-size: 24px;
+    line-height: 1.2;
+    font-weight: 600;
+}
+
+p {
+    margin: 0;
+    max-width: 34ch;
+    color: var(--chalk);
+    font-size: 16px;
+    line-height: 1.45;
+}
+
+.startup-shell.failed .startup-canvas {
+    opacity: 0.45;
+}
+
+.startup-shell.failed h1 {
+    color: var(--coral);
+}
+
+@media (max-width: 520px) {
+    .startup-shell {
+        width: min(340px, calc(100vw - 36px));
+        min-height: 320px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    p {
+        font-size: 15px;
+    }
+}

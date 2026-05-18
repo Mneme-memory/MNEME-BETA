@@ -1,0 +1,223 @@
+const canvas = document.getElementById('startupCanvas');
+const phaseEl = document.getElementById('startupPhase');
+const detailEl = document.getElementById('startupDetail');
+const shellEl = document.querySelector('.startup-shell');
+
+const LOAD_W = 150, LOAD_H = 160;
+const LOAD_CX = 75, LOAD_CY = 80;
+const LOAD_PATH_R = 59, LOAD_CLIP_R = 74;
+const LOAD_BASE_WIDTH = 14;
+const LOAD_NOTCH_MIN = 0.55;
+const LOAD_TAU = Math.PI * 2;
+const LOAD_CFG = {
+    spacing: 22, scrollSpeed: 50, wobbleAmp: 0.5,
+    widthAmp: 0.75, subs: 20, connSubs: 4, cornerDip: 0.22
+};
+
+let loadStartTime = null;
+
+function loadCircleY(x) {
+    const dx = x - LOAD_CX;
+    if (Math.abs(dx) >= LOAD_PATH_R) return null;
+    const h = Math.sqrt(LOAD_PATH_R * LOAD_PATH_R - dx * dx);
+    return { top: LOAD_CY - h, bottom: LOAD_CY + h };
+}
+
+function loadPosWobble(px, py, t, amp) {
+    return [
+        px + Math.sin(t * 0.0020 + py * 0.08 + px * 0.03) * amp,
+        py + Math.cos(t * 0.0025 + px * 0.06 + py * 0.02) * amp * 0.6,
+    ];
+}
+
+function loadWidthWobble(px, py, t, amp) {
+    return LOAD_BASE_WIDTH + Math.sin(t * 0.0015 + px * 0.045 + py * 0.065) * amp;
+}
+
+function loadSubdivide(x1, y1, x2, y2, n, t, wAmp, pAmp, skipFirst, mode) {
+    const pts = [];
+    const start = skipFirst ? 1 : 0;
+    for (let i = start; i <= n; i++) {
+        const f = i / n;
+        const bx = x1 + (x2 - x1) * f;
+        const by = y1 + (y2 - y1) * f;
+        const [wx, wy] = loadPosWobble(bx, by, t, pAmp);
+        let w = loadWidthWobble(bx, by, t, wAmp);
+        if (mode === 'pillar') w *= LOAD_NOTCH_MIN + (1 - LOAD_NOTCH_MIN) * Math.sin(f * Math.PI);
+        else if (mode === 'conn') w *= LOAD_NOTCH_MIN;
+        pts.push({ x: wx, y: wy, w });
+    }
+    return pts;
+}
+
+function loadConnectorCurve(x0, y0, x1, y1, n, t, wAmp, pAmp, dip) {
+    const sy0 = y0 + (LOAD_CY - y0) * dip;
+    const sy1 = y1 + (LOAD_CY - y1) * dip;
+    const midX = (x0 + x1) / 2, midY = (y0 + y1) / 2;
+    const ctrlY = midY - dip * (LOAD_CY - midY);
+    const pts = [];
+    for (let i = 0; i <= n; i++) {
+        const f = i / n;
+        const bx = (1 - f) * (1 - f) * x0 + 2 * f * (1 - f) * midX + f * f * x1;
+        const by = (1 - f) * (1 - f) * sy0 + 2 * f * (1 - f) * ctrlY + f * f * sy1;
+        const [wx, wy] = loadPosWobble(bx, by, t, pAmp);
+        pts.push({ x: wx, y: wy, w: loadWidthWobble(bx, by, t, wAmp) * LOAD_NOTCH_MIN });
+    }
+    return pts;
+}
+
+function drawLoadingFrame(timestamp) {
+    if (!loadStartTime) loadStartTime = timestamp;
+    const time = timestamp - loadStartTime;
+    const { spacing, scrollSpeed, wobbleAmp, widthAmp, subs, connSubs, cornerDip } = LOAD_CFG;
+
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    if (canvas.width !== LOAD_W * dpr) {
+        canvas.width = LOAD_W * dpr;
+        canvas.height = LOAD_H * dpr;
+        ctx.scale(dpr, dpr);
+    }
+
+    const offset = (time / 1000 * scrollSpeed) % (spacing * 2);
+    const firstGrid = Math.floor((LOAD_CX - LOAD_PATH_R - offset) / spacing) - 1;
+    const lastGrid = Math.ceil((LOAD_CX + LOAD_PATH_R - offset) / spacing) + 1;
+    const columns = [];
+
+    for (let gi = firstGrid; gi <= lastGrid; gi++) {
+        const x = gi * spacing + offset;
+        const cy = loadCircleY(x);
+        if (!cy) continue;
+        const goesUp = ((gi % 2) + 2) % 2 === 0;
+        columns.push({ x, yTop: cy.top, yBottom: cy.bottom, goesUp, gi });
+    }
+
+    let points = [];
+    if (columns.length >= 1) {
+        const first = columns[0];
+        const prevGi = first.gi - 1;
+        const prevX = prevGi * spacing + offset;
+        if (!loadCircleY(prevX)) {
+            const edgeX = LOAD_CX - LOAD_PATH_R;
+            const edgeDist = edgeX - prevX;
+            if (edgeDist > 0 && edgeDist < spacing) {
+                const phantomGoesUp = ((prevGi % 2) + 2) % 2 === 0;
+                const toY = phantomGoesUp ? first.yTop : first.yBottom;
+                for (let i = 0; i < connSubs; i++) {
+                    const f = i / connSubs;
+                    const bx = edgeX + (first.x - edgeX) * f;
+                    const by = LOAD_CY + (toY - LOAD_CY) * f;
+                    const [wx, wy] = loadPosWobble(bx, by, time, wobbleAmp);
+                    points.push({ x: wx, y: wy, w: loadWidthWobble(bx, by, time, widthAmp) * LOAD_NOTCH_MIN });
+                }
+            }
+        }
+    }
+
+    for (let i = 0; i < columns.length; i++) {
+        const col = columns[i];
+        const sy = col.goesUp ? col.yBottom : col.yTop;
+        const ey = col.goesUp ? col.yTop : col.yBottom;
+        points = points.concat(loadSubdivide(col.x, sy, col.x, ey, subs, time, widthAmp, wobbleAmp, i > 0, 'pillar'));
+        if (i < columns.length - 1) {
+            const next = columns[i + 1];
+            const fromY = col.goesUp ? col.yTop : col.yBottom;
+            const toY = col.goesUp ? next.yTop : next.yBottom;
+            points = points.concat(loadSubdivide(col.x, fromY, next.x, toY, connSubs, time, widthAmp, wobbleAmp, true, 'conn'));
+        }
+    }
+
+    if (columns.length >= 1) {
+        const last = columns[columns.length - 1];
+        const nextGi = last.gi + 1;
+        const nextX = nextGi * spacing + offset;
+        if (!loadCircleY(nextX)) {
+            const edgeX = LOAD_CX + LOAD_PATH_R;
+            const edgeDist = nextX - edgeX;
+            if (edgeDist > 0 && edgeDist < spacing) {
+                const endY = last.goesUp ? last.yTop : last.yBottom;
+                for (let i = 1; i <= connSubs; i++) {
+                    const f = i / connSubs;
+                    const bx = last.x + (edgeX - last.x) * f;
+                    const by = endY + (LOAD_CY - endY) * f;
+                    const [wx, wy] = loadPosWobble(bx, by, time, wobbleAmp);
+                    points.push({ x: wx, y: wy, w: loadWidthWobble(bx, by, time, widthAmp) * LOAD_NOTCH_MIN });
+                }
+            }
+        }
+    }
+
+    const fadeZone = spacing * 0.7;
+    for (const p of points) {
+        const dist = Math.min(p.x - (LOAD_CX - LOAD_PATH_R), (LOAD_CX + LOAD_PATH_R) - p.x);
+        p.w *= 0.8 + 0.2 * Math.max(Math.min(dist / fadeZone, 1), 0);
+    }
+
+    ctx.clearRect(0, 0, LOAD_W, LOAD_H);
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(LOAD_CX, LOAD_CY, LOAD_CLIP_R, 0, LOAD_TAU);
+    ctx.clip();
+    ctx.strokeStyle = '#d97757';
+    ctx.lineCap = 'round';
+
+    for (let i = 0; i < points.length - 1; i++) {
+        const p = points[i], q = points[i + 1];
+        ctx.lineWidth = (p.w + q.w) / 2;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(q.x, q.y);
+        ctx.stroke();
+    }
+
+    for (let i = 0; i < columns.length - 1; i++) {
+        const col = columns[i], next = columns[i + 1];
+        const fromY = col.goesUp ? col.yTop : col.yBottom;
+        const toY = col.goesUp ? next.yTop : next.yBottom;
+        const cPts = loadConnectorCurve(col.x, fromY, next.x, toY, connSubs, time, widthAmp, wobbleAmp, cornerDip);
+        for (const p of cPts) {
+            const dist = Math.min(p.x - (LOAD_CX - LOAD_PATH_R), (LOAD_CX + LOAD_PATH_R) - p.x);
+            p.w *= 0.8 + 0.2 * Math.max(Math.min(dist / fadeZone, 1), 0);
+        }
+        for (let j = 0; j < cPts.length - 1; j++) {
+            const p = cPts[j], q = cPts[j + 1];
+            ctx.lineWidth = (p.w + q.w) / 2;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.stroke();
+        }
+    }
+
+    ctx.restore();
+    requestAnimationFrame(drawLoadingFrame);
+}
+
+function setCopy(status) {
+    phaseEl.textContent = status.phase || 'Starting Mneme';
+    detailEl.textContent = status.detail || 'Preparing the local memory system...';
+    shellEl.classList.toggle('failed', status.state === 'failed');
+}
+
+async function pollStartupStatus() {
+    try {
+        const response = await fetch('/api/startup/status', { cache: 'no-store' });
+        const status = await response.json();
+        setCopy(status);
+
+        if (status.state === 'ready') {
+            window.location.replace('/');
+            return;
+        }
+    } catch (e) {
+        setCopy({
+            phase: 'Waiting for Mneme',
+            detail: 'The local server is still opening its door...',
+        });
+    }
+
+    setTimeout(pollStartupStatus, 650);
+}
+
+requestAnimationFrame(drawLoadingFrame);
+pollStartupStatus();
