@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mneme — Setup</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="setup.css">
+</head>
+<body>
+    <div class="setup-container">
+
+        <!-- Step 0: Welcome -->
+        <div class="setup-step active" id="step0">
+            <img src="assets/mneme-logo.svg" alt="Mneme" class="setup-logo" onerror="this.style.display='none'">
+            <h1 class="setup-headline" id="headline0">Welcome to Mneme</h1>
+            <p class="setup-desc">A local-first AI memory system.<br>All your data stays on your device.</p>
+            <button class="setup-btn" id="beginBtn">Let's get started</button>
+        </div>
+
+        <!-- Fork: fresh start vs. import from a previous Mneme -->
+        <div class="setup-step" id="stepFork">
+            <h1 class="setup-headline">Set up Mneme</h1>
+            <p class="setup-desc">Start clean, or bring an existing install along.</p>
+            <div class="setup-fork-cards">
+                <button class="setup-fork-card" id="forkFreshBtn">
+                    <span class="setup-fork-card-title">Start fresh</span>
+                    <span class="setup-fork-card-sub">Set up a brand new Mneme.</span>
+                </button>
+                <button class="setup-fork-card" id="forkImportBtn">
+                    <span class="setup-fork-card-title">Import from a previous Mneme</span>
+                    <span class="setup-fork-card-sub">Brings your memories, settings and API keys from an older install.</span>
+                </button>
+            </div>
+            <div class="setup-nav">
+                <button class="setup-btn-back" id="forkBackBtn">Back</button>
+            </div>
+        </div>
+
+        <!-- Import: find/select a previous install -->
+        <div class="setup-step" id="stepImportList">
+            <h1 class="setup-headline">Find your old Mneme</h1>
+            <p class="setup-desc" id="importListDesc">Searching for previous installs...</p>
+            <div class="setup-install-list" id="importInstallList"></div>
+            <div class="setup-manual-path">
+                <input type="text" class="setup-input mono" id="importManualPath" placeholder="…or paste the folder path of your old Mneme" autocomplete="off" spellcheck="false">
+                <button class="setup-btn" id="importManualCheckBtn">Check</button>
+            </div>
+            <p class="setup-desc setup-error-text" id="importManualError" hidden></p>
+            <div class="setup-nav">
+                <button class="setup-btn-back" id="importListBackBtn">Back</button>
+            </div>
+        </div>
+
+        <!-- Import: confirm before copying -->
+        <div class="setup-step" id="stepImportConfirm">
+            <h1 class="setup-headline">Import this install?</h1>
+            <div class="setup-import-summary" id="importSummary"></div>
+            <p class="setup-desc">Your old install is never modified — this makes a copy.</p>
+            <p class="setup-desc setup-error-text" id="importConfirmError" hidden></p>
+            <div class="setup-importing-indicator" id="importingIndicator" hidden>
+                <span class="setup-spinner"></span> Importing your Mneme...
+            </div>
+            <div class="setup-nav">
+                <button class="setup-btn-back" id="importConfirmBackBtn">Back</button>
+                <button class="setup-btn" id="importConfirmBtn">Import</button>
+            </div>
+        </div>
+
+        <!-- Step 1: Your name -->
+        <div class="setup-step" id="step1">
+            <h1 class="setup-headline">What's your name?</h1>
+            <p class="setup-desc">Used in timeline summaries and entity extraction.</p>
+            <input type="text" class="setup-input" id="userName" placeholder="Your name" autocomplete="off" spellcheck="false">
+            <div class="setup-nav">
+                <button class="setup-btn-back" data-back>Back</button>
+                <button class="setup-btn" data-next>Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Anthropic API key -->
+        <div class="setup-step" id="step2">
+            <h1 class="setup-headline">Anthropic API key</h1>
+            <p class="setup-desc">
+                Powers the AI conversations. Get yours at
+                <a href="https://console.anthropic.com/" target="_blank" rel="noopener">console.anthropic.com</a>
+            </p>
+            <input type="password" class="setup-input mono" id="anthropicKey" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+            <div class="setup-nav">
+                <button class="setup-btn-back" data-back>Back</button>
+                <button class="setup-btn" data-next>Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 3: ElevenLabs (optional) -->
+        <div class="setup-step" id="step3">
+            <h1 class="setup-headline">ElevenLabs API key</h1>
+            <p class="setup-desc">
+                Optional — enables text-to-speech. Get one at
+                <a href="https://elevenlabs.io/" target="_blank" rel="noopener">elevenlabs.io</a>
+            </p>
+            <input type="password" class="setup-input mono" id="elevenlabsKey" placeholder="Optional" autocomplete="off" spellcheck="false">
+            <div class="setup-nav">
+                <button class="setup-btn-back" data-back>Back</button>
+                <button class="setup-btn" data-next>Skip</button>
+            </div>
+        </div>
+
+        <!-- Step 4: Instance name -->
+        <div class="setup-step" id="step4">
+            <h1 class="setup-headline">Name your first instance</h1>
+            <p class="setup-desc">What should this AI call itself? You can create more instances later.</p>
+            <input type="text" class="setup-input" id="instanceName" placeholder="e.g. Kali, Atlas, just Claude..." autocomplete="off" spellcheck="false">
+            <div class="setup-nav">
+                <button class="setup-btn-back" data-back>Back</button>
+                <button class="setup-btn" data-next>Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 5: Model selection -->
+        <div class="setup-step" id="step5">
+            <h1 class="setup-headline">Pick a model</h1>
+            <p class="setup-desc">You can change this anytime in settings.</p>
+            <div class="setup-models-wrap">
+                <div class="setup-models">
+                    <button class="setup-model-item setup-model-featured" data-model-id="claude-fable-5">
+                        <span class="model-icon-dot" aria-hidden="true"></span>
+                        <div class="setup-model-info">
+                            <span class="setup-model-name">Fable <span class="setup-model-version">5</span></span>
+                            <span class="setup-model-desc setup-model-note">Anthropic's most capable model — for those who want the best</span>
+                        </div>
+                    </button>
+                    <button class="setup-model-item" data-model-id="claude-opus-4-8">
+                        <img src="assets/model-opus.svg" alt="" width="22" height="22">
+                        <div class="setup-model-info">
+                            <span class="setup-model-name">Opus <span class="setup-model-version">4.8</span></span>
+                            <span class="setup-model-desc">Most capable, higher cost</span>
+                        </div>
+                    </button>
+                    <button class="setup-model-item" data-model-id="claude-opus-4-5">
+                        <img src="assets/model-opus.svg" alt="" width="22" height="22">
+                        <div class="setup-model-info">
+                            <span class="setup-model-name">Opus <span class="setup-model-version">4.5</span></span>
+                            <span class="setup-model-desc">Earlier Opus favorite</span>
+                        </div>
+                    </button>
+                    <button class="setup-model-item" data-model-id="claude-sonnet-5">
+                        <img src="assets/model-sonnet.svg" alt="" width="22" height="22">
+                        <div class="setup-model-info">
+                            <span class="setup-model-name">Sonnet <span class="setup-model-version">5</span></span>
+                            <span class="setup-model-desc">Newest Sonnet, strong daily model</span>
+                        </div>
+                    </button>
+                    <button class="setup-model-item setup-model-featured" data-model-id="claude-sonnet-4-5">
+                        <img src="assets/model-sonnet.svg" alt="" width="22" height="22">
+                        <div class="setup-model-info">
+                            <span class="setup-model-name">Sonnet <span class="setup-model-version">4.5</span></span>
+                            <span class="setup-model-desc setup-model-note">Available in Mneme</span>
+                        </div>
+                    </button>
+                    <button class="setup-model-item" data-model-id="claude-haiku-4-5">
+                        <img src="assets/model-haiku.svg" alt="" width="22" height="22">
+                        <div class="setup-model-info">
+                            <span class="setup-model-name">Haiku <span class="setup-model-version">4.5</span></span>
+                            <span class="setup-model-desc">Fast and lightweight</span>
+                        </div>
+                    </button>
+                </div>
+                <div class="setup-models-others" id="setupOthersBtn">Others</div>
+            </div>
+            <div class="setup-nav">
+                <button class="setup-btn-back" data-back>Back</button>
+                <button class="setup-btn" id="finishBtn">Finish setup</button>
+            </div>
+        </div>
+
+        <!-- Step 6: Completing -->
+        <div class="setup-step" id="step6">
+            <h1 class="setup-headline" id="completingHeadline">Setting things up...</h1>
+            <p class="setup-desc" id="completingDesc">Creating your configuration and initializing the database.</p>
+        </div>
+
+        <!-- Privacy note (always visible at bottom) -->
+        <div class="setup-privacy" id="privacyNote">
+            Your API keys are stored locally on this device only. They are sent directly to
+            Anthropic/OpenAI/ElevenLabs — Mneme has no server, no telemetry, no account.
+        </div>
+
+    </div>
+
+    <script>
+    (function() {
+        // ─── State ───
+        let currentStep = 0;
+        const totalSteps = 7; // 0-6
+        let selectedModel = 'claude-sonnet-4-6';
+
+        const steps = [];
+        for (let i = 0; i < totalSteps; i++) {
+            steps.push(document.getElementById('step' + i));
+        }
+
+        // ─── Navigation ───
+
+        // Core visual transition, extracted so the fork/import sub-flow (which
+        // lives outside the numeric steps[] array) can reuse it directly.
+        function transition(prev, next, direction, focusInput) {
+            if (!prev || !next) return;
+
+            // Slide out current
+            prev.classList.remove('active');
+            prev.classList.add(direction === 'forward' ? 'exit-left' : 'exit-right');
+
+            // Slide in new
+            next.classList.remove('exit-left', 'exit-right');
+            next.classList.add(direction === 'forward' ? 'enter-right' : 'enter-left');
+
+            // Force reflow so the enter class applies from the offset position
+            next.offsetHeight;
+            next.classList.remove('enter-right', 'enter-left');
+            next.classList.add('active');
+
+            // Clean up old step after transition
+            setTimeout(() => {
+                prev.classList.remove('exit-left', 'exit-right', 'active');
+            }, 350);
+
+            // Focus the input if there is one
+            if (focusInput !== false) {
+                const input = next.querySelector('.setup-input');
+                if (input) setTimeout(() => input.focus(), 360);
+            }
+        }
+
+        function showStep(n, direction) {
+            transition(steps[currentStep], steps[n], direction);
+            currentStep = n;
+        }
+
+        function goNext() {
+            // Validation
+            if (currentStep === 2) {
+                const key = document.getElementById('anthropicKey').value.trim();
+                if (!key) {
+                    shakeInput(document.getElementById('anthropicKey'));
+                    return;
+                }
+            }
+            if (currentStep < totalSteps - 1) {
+                showStep(currentStep + 1, 'forward');
+            }
+        }
+
+        function goBack() {
+            // Step 1 (name) was entered from the fork, not from Welcome directly —
+            // send it back there instead of skipping past it.
+            if (currentStep === 1) {
+                transition(steps[1], stepFork, 'backward');
+                currentStep = 0;
+                return;
+            }
+            if (currentStep > 0) {
+                showStep(currentStep - 1, 'backward');
+            }
+        }
+
+        function markSetupComplete() {
+            document.getElementById('completingHeadline').textContent = "You're all set!";
+            document.getElementById('completingDesc').textContent = 'Redirecting to Mneme...';
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1200);
+        }
+
+        // ─── Fork: fresh vs. import ───
+
+        const stepFork = document.getElementById('stepFork');
+        const stepImportList = document.getElementById('stepImportList');
+        const stepImportConfirm = document.getElementById('stepImportConfirm');
+
+        document.getElementById('forkFreshBtn').addEventListener('click', () => {
+            transition(stepFork, steps[1], 'forward');
+            currentStep = 1;
+        });
+
+        document.getElementById('forkBackBtn').addEventListener('click', () => {
+            transition(stepFork, steps[0], 'backward');
+            currentStep = 0;
+        });
+
+        document.getElementById('forkImportBtn').addEventListener('click', () => {
+            transition(stepFork, stepImportList, 'forward', false);
+            loadDetectInstalls();
+        });
+
+        document.getElementById('importListBackBtn').addEventListener('click', () => {
+            transition(stepImportList, stepFork, 'backward', false);
+        });
+
+        // ─── Import: detect / validate a previous install ───
+
+        let selectedInstall = null;
+
+        function escapeHtml(s) {
+            const d = document.createElement('div');
+            d.textContent = s == null ? '' : String(s);
+            return d.innerHTML;
+        }
+
+        function formatBytes(n) {
+            n = n || 0;
+            if (n >= 1024 ** 3) return (n / 1024 ** 3).toFixed(1) + ' GB';
+            if (n >= 1024 ** 2) return (n / 1024 ** 2).toFixed(0) + ' MB';
+            if (n >= 1024) return (n / 1024).toFixed(0) + ' KB';
+            return n + ' B';
+        }
+
+        function renderInstallCard(install) {
+            const card = document.createElement('button');
+            card.className = 'setup-install-card';
+            const profileCount = (install.profiles || []).length;
+            card.innerHTML = `
+                <span class="setup-install-path">${escapeHtml(install.path)}</span>
+                <span class="setup-install-meta">${profileCount} instance${profileCount === 1 ? '' : 's'} · ${formatBytes(install.total_bytes)}</span>
+                <span class="setup-install-key ${install.has_api_key ? 'has-key' : 'no-key'}">${install.has_api_key ? 'API key included' : 'no key'}</span>
+            `;
+            card.addEventListener('click', () => selectInstallForImport(install));
+            return card;
+        }
+
+        async function loadDetectInstalls() {
+            const listEl = document.getElementById('importInstallList');
+            const descEl = document.getElementById('importListDesc');
+            listEl.innerHTML = '';
+            descEl.textContent = 'Searching for previous installs...';
+            try {
+                const res = await fetch('/api/setup/detect-installs');
+                const data = await res.json();
+                const installs = (data && data.installs) || [];
+                if (installs.length === 0) {
+                    descEl.textContent = "We couldn't find a previous install automatically — paste its folder path below.";
+                } else {
+                    descEl.textContent = 'Found on this machine:';
+                    installs.forEach(inst => listEl.appendChild(renderInstallCard(inst)));
+                }
+            } catch (e) {
+                descEl.textContent = "Couldn't search for previous installs — paste the folder path below.";
+            }
+        }
+
+        async function checkManualPath() {
+            const path = document.getElementById('importManualPath').value.trim();
+            const errEl = document.getElementById('importManualError');
+            errEl.hidden = true;
+            if (!path) return;
+            const btn = document.getElementById('importManualCheckBtn');
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/setup/validate-source', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    errEl.textContent = data.error || 'Could not read that folder.';
+                    errEl.hidden = false;
+                    return;
+                }
+                selectInstallForImport(data);
+            } catch (e) {
+                errEl.textContent = 'Could not reach Mneme to check that path.';
+                errEl.hidden = false;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        document.getElementById('importManualCheckBtn').addEventListener('click', checkManualPath);
+        document.getElementById('importManualPath').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                checkManualPath();
+            }
+        });
+
+        // ─── Import: confirmation ───
+
+        function renderImportSummary(install) {
+            const summaryEl = document.getElementById('importSummary');
+            const rows = (install.profiles || []).map(p => {
+                const count = p.message_count === -1 ? 'unknown message count' : `${p.message_count} messages`;
+                return `<div class="setup-import-row">
+                    <span class="setup-import-row-name">${escapeHtml(p.name)}</span>
+                    <span class="setup-import-row-meta">${formatBytes(p.db_bytes)} · ${count}</span>
+                </div>`;
+            }).join('');
+            const profileCount = (install.profiles || []).length;
+            summaryEl.innerHTML = `
+                <div class="setup-import-path">${escapeHtml(install.path)}</div>
+                <div class="setup-import-rows">${rows}</div>
+                <div class="setup-import-total">${profileCount} instance${profileCount === 1 ? '' : 's'} · ${formatBytes(install.total_bytes)} total</div>
+            `;
+        }
+
+        function selectInstallForImport(install) {
+            selectedInstall = install;
+            renderImportSummary(install);
+            document.getElementById('importConfirmError').hidden = true;
+            document.getElementById('importingIndicator').hidden = true;
+            document.getElementById('importConfirmBtn').disabled = false;
+            document.getElementById('importConfirmBtn').textContent = 'Import';
+            document.getElementById('importConfirmBackBtn').disabled = false;
+            transition(stepImportList, stepImportConfirm, 'forward', false);
+        }
+
+        document.getElementById('importConfirmBackBtn').addEventListener('click', () => {
+            transition(stepImportConfirm, stepImportList, 'backward', false);
+        });
+
+        document.getElementById('importConfirmBtn').addEventListener('click', async () => {
+            if (!selectedInstall) return;
+            const errEl = document.getElementById('importConfirmError');
+            const indicator = document.getElementById('importingIndicator');
+            const importBtn = document.getElementById('importConfirmBtn');
+            const backBtn = document.getElementById('importConfirmBackBtn');
+            errEl.hidden = true;
+            indicator.hidden = false;
+            importBtn.disabled = true;
+            backBtn.disabled = true;
+
+            try {
+                const res = await fetch('/api/setup/import', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path: selectedInstall.path })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    errEl.textContent = data.error || 'Import failed.';
+                    errEl.hidden = false;
+                    indicator.hidden = true;
+                    importBtn.disabled = false;
+                    backBtn.disabled = false;
+                    return;
+                }
+                // Success — same completion path the questionnaire uses after
+                // /api/setup succeeds. The imported config brings its own API
+                // keys, so there's nothing left to ask.
+                transition(stepImportConfirm, steps[6], 'forward');
+                markSetupComplete();
+            } catch (e) {
+                errEl.textContent = 'Could not reach Mneme to import.';
+                errEl.hidden = false;
+                indicator.hidden = true;
+                importBtn.disabled = false;
+                backBtn.disabled = false;
+            }
+        });
+
+        function shakeInput(el) {
+            el.classList.add('shake');
+            el.focus();
+            setTimeout(() => el.classList.remove('shake'), 500);
+        }
+
+        // ─── Event listeners ───
+
+        // Begin button — goes to the fork (fresh vs. import), not straight to step1
+        document.getElementById('beginBtn').addEventListener('click', () => {
+            transition(steps[0], stepFork, 'forward');
+        });
+
+        // All next/back buttons
+        document.querySelectorAll('[data-next]').forEach(btn => {
+            btn.addEventListener('click', goNext);
+        });
+        document.querySelectorAll('[data-back]').forEach(btn => {
+            btn.addEventListener('click', goBack);
+        });
+
+        // Enter key advances from input
+        document.querySelectorAll('.setup-input').forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    goNext();
+                }
+            });
+        });
+
+        // ElevenLabs: update button label based on input
+        document.getElementById('elevenlabsKey').addEventListener('input', (e) => {
+            const btn = steps[3].querySelector('[data-next]');
+            btn.textContent = e.target.value.trim() ? 'Continue' : 'Skip';
+        });
+
+        // Model selection — hover highlights, click collapses, tap to reopen
+        const modelsWrap = document.querySelector('.setup-models-wrap');
+        const modelsCard = document.querySelector('.setup-models');
+        const modelsOthers = document.querySelector('.setup-models-others');
+        let modelsCollapsed = false;
+
+        // Others — swap card contents between main and alt models
+        const othersBtn = document.getElementById('setupOthersBtn');
+        let showingOthers = false;
+
+        // Alt model definitions
+        const altModels = [
+            { id: 'claude-opus-4-7', icon: 'assets/model-opus.svg', name: 'Opus', version: '4.7', desc: 'Previous Opus' },
+            { id: 'claude-opus-4-6', icon: 'assets/model-opus.svg', name: 'Opus', version: '4.6', desc: 'Previous Opus' },
+            { id: 'claude-sonnet-4-6', icon: 'assets/model-sonnet.svg', name: 'Sonnet', version: '4.6', desc: 'Previous Sonnet' },
+        ];
+
+        // Store original main items HTML
+        const mainItemsHTML = modelsCard.innerHTML;
+
+        function buildAltItems() {
+            return altModels.map(m =>
+                `<button class="setup-model-item" data-model-id="${m.id}">
+                    <img src="${m.icon}" alt="" width="22" height="22">
+                    <div class="setup-model-info">
+                        <span class="setup-model-name">${m.name} <span class="setup-model-version">${m.version}</span></span>
+                        <span class="setup-model-desc">${m.desc}</span>
+                    </div>
+                </button>`
+            ).join('');
+        }
+
+        function bindCardItems() {
+            // Re-bind hover + click on whatever items are currently in the card
+            const items = modelsCard.querySelectorAll('.setup-model-item');
+            items.forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    if (modelsCollapsed) return;
+                    items.forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                });
+                item.addEventListener('click', () => {
+                    if (modelsCollapsed) {
+                        // Reopen — restore to main view
+                        modelsCollapsed = false;
+                        showingOthers = false;
+                        modelsCard.innerHTML = mainItemsHTML;
+                        modelsCard.classList.remove('collapsed');
+                        modelsOthers.style.display = '';
+                        othersBtn.textContent = 'Others';
+                        bindCardItems();
+                        // Highlight current selection
+                        modelsCard.querySelectorAll('.setup-model-item').forEach(i => {
+                            i.classList.toggle('selected', i.dataset.modelId === selectedModel);
+                        });
+                        return;
+                    }
+                    // Select + collapse
+                    selectedModel = item.dataset.modelId;
+                    modelsCollapsed = true;
+                    modelsCard.classList.add('collapsed');
+                    modelsOthers.style.display = 'none';
+                    items.forEach(i => {
+                        if (i.dataset.modelId === selectedModel) {
+                            i.classList.add('selected');
+                            i.style.display = '';
+                        } else {
+                            i.classList.remove('selected');
+                            i.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        }
+
+        // Initial bind
+        bindCardItems();
+
+        othersBtn.addEventListener('click', () => {
+            if (showingOthers) {
+                // Back to main
+                showingOthers = false;
+                modelsCard.innerHTML = mainItemsHTML;
+                othersBtn.textContent = 'Others';
+                bindCardItems();
+                modelsCard.querySelectorAll('.setup-model-item').forEach(i => {
+                    i.classList.toggle('selected', i.dataset.modelId === selectedModel);
+                });
+            } else {
+                // Show alt models
+                showingOthers = true;
+                modelsCard.innerHTML = buildAltItems();
+                othersBtn.textContent = 'Back';
+                bindCardItems();
+            }
+        });
+
+        // Finish button
+        document.getElementById('finishBtn').addEventListener('click', submitSetup);
+
+        // ─── Submit ───
+
+        async function submitSetup() {
+            showStep(6, 'forward');
+
+            const payload = {
+                user_name: document.getElementById('userName').value.trim(),
+                anthropic_key: document.getElementById('anthropicKey').value.trim(),
+                elevenlabs_key: document.getElementById('elevenlabsKey').value.trim(),
+                instance_name: document.getElementById('instanceName').value.trim() || 'Assistant',
+                model: selectedModel
+            };
+
+            try {
+                const res = await fetch('/api/setup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || 'Setup failed');
+                }
+
+                // Success — redirect to main app
+                markSetupComplete();
+
+            } catch (e) {
+                document.getElementById('completingHeadline').textContent = 'Something went wrong';
+                document.getElementById('completingDesc').textContent = e.message;
+
+                // Add a retry button
+                const retryBtn = document.createElement('button');
+                retryBtn.className = 'setup-btn';
+                retryBtn.textContent = 'Try again';
+                retryBtn.style.marginTop = '20px';
+                retryBtn.addEventListener('click', () => {
+                    retryBtn.remove();
+                    showStep(5, 'backward');
+                });
+                steps[6].appendChild(retryBtn);
+            }
+        }
+    })();
+    </script>
+</body>
+</html>
