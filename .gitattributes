@@ -1,0 +1,55 @@
+*.ps1  text eol=crlf
+*.iss  text eol=crlf
+*.bat  text eol=crlf
+*.sh   text eol=lf
+*.desktop text eol=lf
+*.desktop.template text eol=lf
+
+# Public release pruning. These remain available in the development repo but
+# are omitted from Mneme-release.zip, which is built with `git archive`.
+# scripts/push-production.sh uses the same list for the production snapshot.
+scripts/CLAUDE.md export-ignore
+scripts/backfill_attachment_descriptions.py export-ignore
+scripts/chat.py export-ignore
+scripts/check-production-sync.sh export-ignore
+scripts/create_shortcuts.vbs export-ignore
+scripts/diagnose_context.py export-ignore
+scripts/diagnose_database.py export-ignore
+scripts/list_entities.py export-ignore
+scripts/manage_aliases.py export-ignore
+scripts/manage_entities.py export-ignore
+scripts/push-production.sh export-ignore
+scripts/regenerate_entity_summaries.py export-ignore
+scripts/txt_to_pdf.py export-ignore
+scripts/internal/** export-ignore
+scripts/installer/install-windows.bat export-ignore
+scripts/installer/Mneme-Installer.iss export-ignore
+scripts/installer/wizard-banner.png export-ignore
+scripts/installer/wizard-icon.png export-ignore
+
+.claude/** export-ignore
+.agents/** export-ignore
+.codex/** export-ignore
+AGENTS.md export-ignore
+CLAUDE.md export-ignore
+Dockerfile export-ignore
+docs/archive/** export-ignore
+docs/analysis/** export-ignore
+docs/GIVE-TO-CLAUDE-FOR-HELP.txt export-ignore
+docs/INFOGRAPHIC_ARCHITECTURE.txt export-ignore
+docs/reference/** export-ignore
+docs/developer/CODEBASE_REVIEW_2026-03-21.md export-ignore
+docs/developer/DEMO_PLAN.md export-ignore
+docs/developer/REFACTOR_OPPORTUNITIES.md export-ignore
+docs/developer/STATUS_COPY_REWRITE.md export-ignore
+docs/TODO_SOMEDAY.md export-ignore
+docs/video_plan.md export-ignore
+docs/emma.md export-ignore
+docs/demo_script.md export-ignore
+Mneme.app/** export-ignore
+install-mac-linux.sh export-ignore
+launch-post.txt export-ignore
+tests/** export-ignore
+pytest.ini export-ignore
+src/backend/CLAUDE.md export-ignore
+src/frontend/CLAUDE.md export-ignore

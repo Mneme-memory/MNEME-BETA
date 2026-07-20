@@ -1,0 +1,632 @@
+/* Mneme Setup — Warm Dark Theme (matches main app aesthetic) */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --slate: #262624;
+    --gravel: #30302e;
+    --granite: #878787;
+    --andesite: #a2a2a2;
+    --chalk: #76746e;
+    --coral: #d97757;
+    --coral-50: rgba(217, 119, 87, 0.5);
+    --coral-30: rgba(217, 119, 87, 0.3);
+    --coral-20: rgba(217, 119, 87, 0.2);
+    --coral-15: rgba(217, 119, 87, 0.15);
+    --coral-10: rgba(217, 119, 87, 0.1);
+    --alabaster: #ece9e2;
+    --error: #ff4444;
+    --font-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+    --font-mono: 'Fira Code', 'SF Mono', 'Cascadia Code', Consolas, monospace;
+}
+
+body {
+    font-family: var(--font-serif);
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 22px;
+    background-color: var(--slate);
+    color: var(--alabaster);
+    height: 100dvh;
+    overflow: hidden;
+    position: fixed;
+    inset: 0;
+}
+
+/* ── Container ────────────────────────────────── */
+
+.setup-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100dvh;
+    width: 100vw;
+    padding: 40px 24px 80px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ── Steps ────────────────────────────────────── */
+
+.setup-step {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    max-width: 440px;
+    width: 100%;
+    padding: 0 24px;
+
+    /* Hidden by default */
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(60px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.setup-step.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+}
+
+/* Slide out left (going forward) */
+.setup-step.exit-left {
+    opacity: 0;
+    transform: translateX(-60px);
+}
+
+/* Slide out right (going backward) */
+.setup-step.exit-right {
+    opacity: 0;
+    transform: translateX(60px);
+}
+
+/* Entry positions (before .active is added) */
+.setup-step.enter-right {
+    transform: translateX(60px);
+    opacity: 0;
+    transition: none; /* no transition on the starting position */
+}
+
+.setup-step.enter-left {
+    transform: translateX(-60px);
+    opacity: 0;
+    transition: none;
+}
+
+/* ── Logo ─────────────────────────────────────── */
+
+.setup-logo {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 8px;
+    opacity: 0.9;
+}
+
+/* ── Typography ───────────────────────────────── */
+
+.setup-headline {
+    font-family: var(--font-serif);
+    font-size: 34px;
+    font-weight: 400;
+    color: var(--alabaster);
+    text-align: center;
+    line-height: 1.2;
+}
+
+.setup-desc {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--alabaster);
+    text-align: center;
+    line-height: 1.6;
+    max-width: 380px;
+    opacity: 0.7;
+}
+
+.setup-desc a {
+    color: var(--coral);
+    text-decoration: none;
+}
+
+.setup-desc a:hover {
+    text-decoration: underline;
+}
+
+/* ── Inputs ───────────────────────────────────── */
+
+.setup-input {
+    width: 100%;
+    max-width: 340px;
+    background: var(--gravel);
+    border: 2px solid var(--chalk);
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-family: var(--font-serif);
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--alabaster);
+    outline: none;
+    transition: border-color 0.2s;
+    margin-top: 4px;
+}
+
+.setup-input.mono {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: -0.3px;
+}
+
+.setup-input::placeholder {
+    color: var(--chalk);
+    font-weight: 300;
+}
+
+.setup-input:focus {
+    border-color: var(--coral-50);
+}
+
+.setup-input.shake {
+    animation: shake 0.4s ease;
+    border-color: var(--coral);
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(2px); }
+}
+
+/* ── Buttons ──────────────────────────────────── */
+
+.setup-btn {
+    background: none;
+    color: var(--alabaster);
+    border: 2px solid var(--chalk);
+    border-radius: 20px;
+    padding: 8px 28px 10px;
+    font-family: var(--font-serif);
+    font-size: 15px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.setup-btn:hover {
+    border-color: var(--coral);
+    color: var(--coral);
+}
+
+.setup-btn:active {
+    opacity: 0.7;
+}
+
+.setup-btn-back {
+    background: none;
+    border: none;
+    color: var(--chalk);
+    font-family: var(--font-serif);
+    font-size: 15px;
+    font-weight: 400;
+    cursor: pointer;
+    padding: 10px 16px;
+    transition: color 0.15s;
+}
+
+.setup-btn-back:hover {
+    color: var(--andesite);
+}
+
+.setup-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+/* ── Fork: fresh vs. import ───────────────────── */
+
+.setup-fork-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 360px;
+    margin-top: 8px;
+}
+
+.setup-fork-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    width: 100%;
+    background: var(--gravel);
+    border: 2px solid var(--chalk);
+    border-radius: 18px;
+    padding: 16px 18px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s;
+}
+
+@media (hover: hover) {
+    .setup-fork-card:hover {
+        border-color: var(--coral-50);
+    }
+}
+
+.setup-fork-card:active {
+    opacity: 0.85;
+}
+
+.setup-fork-card-title {
+    font-family: var(--font-serif);
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--alabaster);
+}
+
+.setup-fork-card-sub {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--chalk);
+    line-height: 1.4;
+}
+
+/* ── Import: install list ─────────────────────── */
+
+.setup-install-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 360px;
+    margin-top: 4px;
+}
+
+.setup-install-list:empty {
+    display: none;
+}
+
+.setup-install-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    width: 100%;
+    background: var(--gravel);
+    border: 2px solid var(--chalk);
+    border-radius: 16px;
+    padding: 12px 16px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s;
+}
+
+@media (hover: hover) {
+    .setup-install-card:hover {
+        border-color: var(--coral-50);
+    }
+}
+
+.setup-install-path {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--coral);
+    word-break: break-all;
+}
+
+.setup-install-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--granite);
+}
+
+.setup-install-key {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+}
+
+.setup-install-key.has-key {
+    color: var(--coral);
+}
+
+.setup-install-key.no-key {
+    color: var(--chalk);
+}
+
+.setup-manual-path {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 360px;
+    margin-top: 8px;
+}
+
+.setup-manual-path .setup-input {
+    margin-top: 0;
+    max-width: none;
+    flex: 1;
+}
+
+.setup-manual-path .setup-btn {
+    flex-shrink: 0;
+    padding-left: 18px;
+    padding-right: 18px;
+}
+
+.setup-error-text {
+    color: var(--error);
+    opacity: 1;
+    max-width: 360px;
+}
+
+/* ── Import: confirmation ─────────────────────── */
+
+.setup-import-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 360px;
+    background: var(--gravel);
+    border: 2px solid var(--chalk);
+    border-radius: 18px;
+    padding: 16px 18px;
+}
+
+.setup-import-path {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--coral);
+    word-break: break-all;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--chalk);
+}
+
+.setup-import-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.setup-import-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.setup-import-row-name {
+    font-family: var(--font-serif);
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--alabaster);
+}
+
+.setup-import-row-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--granite);
+    white-space: nowrap;
+}
+
+.setup-import-total {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--chalk);
+    padding-top: 8px;
+    border-top: 1px solid var(--chalk);
+}
+
+.setup-importing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--coral);
+    margin-top: 4px;
+}
+
+/* [hidden] loses to display:flex above unless restated */
+.setup-importing-indicator[hidden] {
+    display: none;
+}
+
+.setup-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--coral-20);
+    border-top-color: var(--coral);
+    border-radius: 999px;
+    display: inline-block;
+    animation: setup-spin 0.7s linear infinite;
+}
+
+@keyframes setup-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ── Model selector ───────────────────────────── */
+
+.setup-models-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 340px;
+    margin-top: 4px;
+}
+
+.setup-models {
+    display: flex;
+    flex-direction: column;
+    background: var(--gravel);
+    border: 2px solid var(--chalk);
+    border-radius: 20px;
+    padding: 0;
+    gap: 0;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+}
+
+.setup-model-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 0;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--alabaster);
+    font-family: var(--font-serif);
+    text-align: left;
+    transition: none;
+}
+
+.setup-model-item.selected {
+    background: var(--coral-10);
+}
+
+.setup-model-item.setup-model-featured {
+    box-shadow: inset 3px 0 0 var(--coral);
+}
+
+.setup-models.collapsed {
+    cursor: pointer;
+}
+
+.setup-models.collapsed .setup-model-item.selected {
+    background: none;
+}
+
+.setup-model-item img {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.setup-model-item .model-icon-dot {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: var(--coral);
+}
+
+.setup-model-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.setup-model-name {
+    font-family: var(--font-serif);
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--alabaster);
+    line-height: 1.2;
+    transition: color 0.1s;
+}
+
+.setup-model-version {
+    color: var(--granite);
+    font-weight: 400;
+}
+
+.setup-model-desc.setup-model-note {
+    color: var(--coral);
+    opacity: 0.95;
+}
+
+.setup-model-desc {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--chalk);
+    line-height: 1.3;
+}
+
+.setup-models-others {
+    background: rgba(48, 48, 46, 0.5);
+    border: 2px solid var(--chalk);
+    border-top: none;
+    border-radius: 0 0 20px 20px;
+    position: relative;
+    z-index: 1;
+    margin-top: -18px;
+    padding-top: 22px;
+    padding-bottom: 6px;
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+    font-family: var(--font-serif);
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--granite);
+}
+
+.setup-models-others:hover {
+    color: var(--alabaster);
+}
+
+
+/* ── Privacy note ─────────────────────────────── */
+
+.setup-privacy {
+    position: fixed;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    padding: 0 32px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--chalk);
+    line-height: 1.5;
+    pointer-events: none;
+}
+
+/* ── Responsive ───────────────────────────────── */
+
+@media (max-width: 480px) {
+    .setup-headline {
+        font-size: 28px;
+    }
+    .setup-input, .setup-models {
+        max-width: 100%;
+    }
+    .setup-fork-cards, .setup-install-list, .setup-manual-path,
+    .setup-import-summary, .setup-error-text {
+        max-width: 100%;
+    }
+    .setup-manual-path {
+        flex-direction: column;
+    }
+    .setup-privacy {
+        padding: 12px 16px;
+        font-size: 10px;
+    }
+}

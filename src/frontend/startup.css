@@ -1,0 +1,120 @@
+/* Startup screen — styled per DESIGN.md (the law). Named tokens only. */
+:root {
+    --slate: #262624;
+    --chalk: #76746e;
+    --alabaster: #ece9e2;
+    --coral: #d97757;
+    --error: #ff4444;
+    --font-serif: "Source Serif 4", Georgia, serif;
+    --font-mono: "Fira Code", monospace;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--slate);
+    color: var(--alabaster);
+    font-family: var(--font-serif);
+}
+
+body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+}
+
+.startup-shell {
+    width: min(420px, calc(100vw - 48px));
+    min-height: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    text-align: center;
+}
+
+.startup-canvas {
+    width: 56px;
+    height: 60px;
+    display: block;
+}
+
+.startup-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Wordmark: quiet page header, pinned top-center — identity lives up there,
+   the center of the screen is purely status. */
+.startup-wordmark {
+    position: fixed;
+    top: calc(28px + env(safe-area-inset-top, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    width: 78px;
+    height: auto;
+}
+
+/* Mneme voice: serif light, alabaster, quiet and editorial. */
+h1 {
+    margin: 0;
+    max-width: 100%;
+    font-size: 26px;
+    line-height: 1.2;
+    font-weight: 350;
+    letter-spacing: 0.01em;
+    color: var(--alabaster);
+}
+
+/* Machine voice: transient system state speaks Fira, coral, small. */
+p {
+    margin: 0;
+    max-width: 44ch;
+    color: var(--coral);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Wave progress bar — boot steps traveling left to right */
+.startup-progress {
+    display: block;
+    width: min(240px, 60vw);
+    height: 22px;
+    margin-top: 10px;
+}
+
+.startup-shell.failed .startup-progress {
+    display: none;
+}
+
+.startup-shell.failed .startup-canvas {
+    opacity: 0.45;
+}
+
+.startup-shell.failed h1 {
+    color: var(--error);
+}
+
+.startup-shell.failed p {
+    color: var(--chalk);
+}
+
+@media (max-width: 520px) {
+    .startup-shell {
+        width: min(340px, calc(100vw - 36px));
+        min-height: 320px;
+    }
+
+    h1 {
+        font-size: 23px;
+    }
+}

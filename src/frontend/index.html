@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+    <title>Mneme Memory System</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=20260707-lock3">
+</head>
+<body>
+    <!-- Loading overlay — Mneme logo animation (shown during startup / profile switch) -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <canvas id="loadingCanvas"></canvas>
+    </div>
+
+    <div class="app-container">
+
+        <!-- Progressive blur layers (6 stacked, simulate variable blur under header) -->
+        <div class="blur-layer blur-layer-1" aria-hidden="true"></div>
+        <div class="blur-layer blur-layer-2" aria-hidden="true"></div>
+        <div class="blur-layer blur-layer-3" aria-hidden="true"></div>
+        <div class="blur-layer blur-layer-4" aria-hidden="true"></div>
+        <div class="blur-layer blur-layer-5" aria-hidden="true"></div>
+        <div class="blur-layer blur-layer-6" aria-hidden="true"></div>
+
+        <!-- Header -->
+        <header class="header" id="chatHeader">
+            <div class="header-left">
+                <button class="header-btn" id="backBtn" style="display:none" title="Back" aria-label="Go back">
+                    <img src="assets/arrow-back.svg" alt="" width="16" height="14">
+                </button>
+                <img class="header-wordmark" id="headerWordmark" src="assets/mneme-wordmark.svg" alt="Mneme" style="display:none">
+            </div>
+            <div class="header-center" id="headerCenter">
+                <span class="header-profile-name" id="profileName"></span>
+                <span class="header-model-label" id="headerModelLabel"></span>
+            </div>
+            <div class="header-right">
+                <button class="header-btn" id="forwardBtn" style="display:none" title="Back to conversation" aria-label="Back to conversation">
+                    <img src="assets/arrow-back.svg" alt="" width="16" height="14" style="transform:scaleX(-1)">
+                </button>
+                <button class="header-btn" id="settingsBtnHeader" style="display:none" title="Settings" aria-label="Open settings">
+                    <img src="assets/icon-settings.svg" alt="" width="20" height="20">
+                </button>
+            </div>
+        </header>
+
+
+        <!-- Starting Screen (shown when no history) -->
+        <div class="starting-screen" id="startingScreen">
+            <div class="starting-icon">
+                <div class="model-badge" id="modelBadge">
+                    <img class="model-badge-icon" id="modelBadgeIcon" src="assets/model-sonnet.svg" alt="" width="22" height="22">
+                    <span class="model-badge-text" id="modelBadgeText">Sonnet</span>
+                    <span class="model-badge-version" id="modelBadgeVersion">4.5</span>
+                </div>
+                <!-- Model selector wrap — shown/hidden as unit, in flow -->
+                <div class="model-selector-wrap" id="modelSelectorWrap">
+                    <div class="model-selector" id="modelSelector">
+                        <button class="model-selector-item model-featured" data-model-id="claude-fable-5">
+                            <span class="model-icon-dot" aria-hidden="true"></span>
+                            <span class="model-name">Fable</span><span class="model-version"> 5</span>
+                            <span class="model-note">New — most capable Claude</span>
+                        </button>
+                        <button class="model-selector-item" data-model-id="claude-opus-4-8">
+                            <img src="assets/model-opus.svg" alt="" width="18" height="18">
+                            <span class="model-name">Opus</span><span class="model-version"> 4.8</span>
+                        </button>
+                        <button class="model-selector-item" data-model-id="claude-opus-4-5">
+                            <img src="assets/model-opus.svg" alt="" width="18" height="18">
+                            <span class="model-name">Opus</span><span class="model-version"> 4.5</span>
+                        </button>
+                        <button class="model-selector-item" data-model-id="claude-sonnet-5">
+                            <img src="assets/model-sonnet.svg" alt="" width="18" height="18">
+                            <span class="model-name">Sonnet</span><span class="model-version"> 5</span>
+                        </button>
+                        <button class="model-selector-item model-featured" data-model-id="claude-sonnet-4-5">
+                            <img src="assets/model-sonnet.svg" alt="" width="18" height="18">
+                            <span class="model-name">Sonnet</span><span class="model-version"> 4.5</span>
+                            <span class="model-note">Available in Mneme</span>
+                        </button>
+                        <button class="model-selector-item" data-model-id="claude-haiku-4-5">
+                            <img src="assets/model-haiku.svg" alt="" width="18" height="18">
+                            <span class="model-name">Haiku</span><span class="model-version"> 4.5</span>
+                        </button>
+                    </div>
+                    <div class="model-selector-footer">
+                        <button class="model-selector-item others" id="modelOthersBtn">Others</button>
+                    </div>
+                </div>
+            </div>
+            <h1 class="starting-headline" id="startingHeadline">Pick a model and we can get started!</h1>
+        </div>
+
+        <!-- Profile Selector -->
+        <div class="profile-selector hidden" id="profileSelector">
+            <div class="profile-selector-icon">
+                <div class="profile-badge" id="profileBadge">
+                    <img class="profile-badge-icon" id="profileBadgeIcon" src="assets/model-sonnet.svg" alt="" width="22" height="22">
+                    <span class="profile-badge-text" id="profileBadgeText"></span>
+                    <span class="profile-row-model" id="profileBadgeModel"></span>
+                    <span class="profile-row-version" id="profileBadgeVersion"></span>
+                </div>
+                <div class="profile-selector-wrap" id="profileSelectorWrap">
+                    <div class="profile-card" id="profileCard">
+                        <!-- Rows populated dynamically by JS -->
+                    </div>
+                    <div class="profile-new-instance" id="profileNewInstance">
+                        New instance
+                    </div>
+                </div>
+            </div>
+            <h1 class="profile-greeting" id="profileGreeting"></h1>
+        </div>
+
+        <!-- Messages Container (hidden until chat active) -->
+        <main class="messages-container hidden" id="messagesContainer">
+        </main>
+
+        <!-- Status Float (collapsed bar / expandable cube above input) -->
+        <div class="status-float hidden" id="statusFloat">
+            <div class="status-float-inner">
+                <!-- Status Log Panel (expands above notification bar) -->
+                <div class="status-log-panel" id="statusLogPanel"></div>
+
+                <!-- Notification Bar -->
+                <div class="notification-bar idle" id="notificationBar">
+                    <span class="spinner" id="statusSpinner"></span>
+                    <span class="notification-bar-text" id="statusLogHeaderText"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input wrapper — anchors wave controls above input regardless of input height -->
+        <div class="input-wrapper" id="inputWrapper">
+
+        <!-- Wave canvas — positioned at bottom: 22px so its center (32px) aligns with wave controls -->
+        <canvas id="streamingWave" class="streaming-wave-canvas" aria-hidden="true"></canvas>
+
+        <!-- Wave-level controls (absolute, on the canvas line) -->
+        <button class="scroll-to-bottom" id="scrollToBottom" title="Scroll to bottom" aria-label="Scroll to bottom">
+            <svg class="chevron-icon chevron-down" viewBox="0 0 16 16" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6,3 11,8 6,13"/></svg>
+        </button>
+        <button class="stop-btn" id="stopBtn" title="Stop response" aria-label="Stop response">
+            <span class="stop-icon"></span>
+        </button>
+        <!-- Status pill — shown during continuation phase (command/retrieval results) -->
+        <div class="wave-pill" id="wavePill" style="display:none"><span id="wavePillText"></span></div>
+
+        <button class="migration-chat-lock" id="migrationChatLock" type="button" hidden>
+            <canvas id="migrationLockCanvas" aria-hidden="true"></canvas>
+            <span>Migrating memories</span>
+        </button>
+
+        <!-- Command autocomplete — glass popup above the input -->
+        <div class="cmd-autocomplete" id="cmdAutocomplete" hidden></div>
+
+        <!-- Input Area -->
+        <div class="input-container" id="inputContainer">
+            <div class="pending-attachments" id="pendingAttachments"></div>
+            <!-- Mirror layer: renders the draft with the command line in coral
+                 while the textarea's own text is transparent (command drafts only) -->
+            <div class="input-mirror" id="inputMirror" aria-hidden="true" hidden></div>
+            <textarea
+                class="input-field"
+                id="messageInput"
+                placeholder="Write to..."
+                rows="1"
+                aria-label="Message input"
+            ></textarea>
+            <div class="input-row">
+                <div class="input-left-icons">
+                    <button class="input-icon-btn" id="attachBtn" title="Attach file" aria-label="Attach file">
+                        <img src="assets/icon-plus.svg" alt="" width="17" height="17">
+                    </button>
+                </div>
+                <button class="send-btn" id="sendBtn" title="Send message" aria-label="Send message">
+                    <svg class="chevron-icon chevron-up" viewBox="0 0 16 16" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6,3 11,8 6,13"/></svg>
+                </button>
+            </div>
+            <input type="file" id="fileInput" style="display: none"
+                   accept="image/*,.pdf,.txt,.md,.json,.csv">
+        </div>
+        </div><!-- /input-wrapper -->
+
+        <div class="bottom-drawer-overlay" id="bottomDrawerOverlay"></div>
+        <div class="bottom-drawer" id="bottomDrawer">
+            <button class="bottom-drawer-option" id="drawerAttachOption">
+                <span class="drawer-option-glyph">+</span>
+                <span class="drawer-option-label">Attach file</span>
+            </button>
+            <button class="bottom-drawer-option" id="drawerCommandOption">
+                <span class="drawer-option-glyph">@</span>
+                <span class="drawer-option-label">Insert command</span>
+            </button>
+        </div>
+        <div class="bottom-drawer commands-drawer" id="commandsDrawer">
+            <div class="cmd-console-header" id="cmdConsoleHeader" hidden>
+                <button class="cmd-back-btn" id="cmdBackBtn" aria-label="Back">&lsaquo; back</button>
+                <span class="cmd-console-title" id="cmdConsoleTitle"></span>
+            </div>
+            <div class="commands-drawer-body" id="cmdHome">
+                <div class="cmd-section">
+                    <div class="cmd-section-label">Memory</div>
+                    <div class="cmd-section-desc">Manage what surfaces in context.</div>
+                    <div class="cmd-pills">
+                        <button class="cmd-pill" data-form="forget">archive a topic</button>
+                    </div>
+                </div>
+                <div class="cmd-section">
+                    <div class="cmd-section-label">People & topics</div>
+                    <div class="cmd-section-desc">People and topics your AI keeps ongoing summaries about.</div>
+                    <div class="cmd-pills">
+                        <button class="cmd-pill" data-exec="@entity list">browse topics</button>
+                    </div>
+                </div>
+                <div class="cmd-section">
+                    <div class="cmd-section-label">Concepts</div>
+                    <div class="cmd-section-desc">Named narrative patterns that shape context automatically.</div>
+                    <div class="cmd-pills">
+                        <button class="cmd-pill" data-exec="@concept list">browse concepts</button>
+                        <button class="cmd-pill" data-form="concept-create">create new</button>
+                    </div>
+                </div>
+                <div class="cmd-section">
+                    <div class="cmd-section-label">Files &amp; Artifacts</div>
+                    <div class="cmd-section-desc">Uploaded files, attachments, and saved creative or technical work.</div>
+                    <div class="cmd-pills">
+                        <button class="cmd-pill" data-view="files">recent files</button>
+                        <button class="cmd-pill" data-cmd="@artifact ">save artifact</button>
+                    </div>
+                </div>
+            </div>
+            <div class="cmd-console-view" id="cmdConsoleView" hidden></div>
+        </div>
+        <!-- Settings Page (full-screen, replaces chat) -->
+        <div class="settings-page" id="settingsPage">
+            <div class="settings-top-bar">
+                <button class="settings-back-btn" id="settingsBackBtn" aria-label="Back">
+                    <img src="assets/arrow-back.svg" alt="" width="16" height="14">
+                </button>
+                <span class="settings-top-label">Profile settings</span>
+            </div>
+            <div class="settings-page-body">
+
+                <!-- ── IDENTITY ── -->
+                <div class="setting-section">
+                    <div class="setting-name">Identity</div>
+                    <div class="setting-identity-fields" id="identityFields">
+                        <div class="setting-identity-field">
+                            <span class="setting-identity-label">Your name</span>
+                            <div class="setting-input-wrap">
+                                <input type="text" class="setting-text-input" id="settingUserName" placeholder="Human" disabled>
+                                <button class="setting-field-edit-btn" aria-label="Edit" data-target="settingUserName">
+                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M8.5 2.5l3 3M1.5 9.5l-0.5 3.5 3.5-0.5 8-8-3-3z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="setting-identity-field">
+                            <span class="setting-identity-label">Instance name</span>
+                            <div class="setting-input-wrap">
+                                <input type="text" class="setting-text-input" id="settingInstanceName" placeholder="Assistant" disabled>
+                                <button class="setting-field-edit-btn" aria-label="Edit" data-target="settingInstanceName">
+                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M8.5 2.5l3 3M1.5 9.5l-0.5 3.5 3.5-0.5 8-8-3-3z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-divider"></div>
+
+                <!-- ── MODEL ── -->
+                <div class="setting-section">
+                    <div class="setting-name">Model</div>
+                    <div class="setting-desc">AI model for this profile</div>
+                    <div class="setting-model-select">
+                        <select class="setting-dropdown" id="settingModelDefault">
+                            <option value="claude-fable-5">Fable 5</option>
+                            <option value="claude-opus-4-8">Opus 4.8</option>
+                            <option value="claude-opus-4-7">Opus 4.7</option>
+                            <option value="claude-opus-4-6">Opus 4.6</option>
+                            <option value="claude-opus-4-5">Opus 4.5</option>
+                            <option value="claude-sonnet-5">Sonnet 5</option>
+                            <option value="claude-sonnet-4-6">Sonnet 4.6</option>
+                            <option value="claude-sonnet-4-5">Sonnet 4.5</option>
+                            <option value="claude-haiku-4-5">Haiku 4.5</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="setting-section setting-section-toggle">
+                    <div class="setting-toggle-row">
+                        <div>
+                            <div class="setting-name">Use Haiku (testing mode)</div>
+                            <div class="setting-desc">Use a faster, cheaper model for testing</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="settingTestingModel">
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Temperature (hidden when thinking is enabled) -->
+                <div class="setting-section" id="settingTemperatureSection">
+                    <div class="setting-name">Temperature</div>
+                    <div class="setting-desc">How varied or predictable responses feel. Locked at 1.0 when extended thinking is on.</div>
+                    <div class="setting-slider-wrap">
+                        <input class="setting-slider" type="range" id="settingTemperature" min="0" max="1" step="0.1">
+                        <div class="setting-slider-value" id="settingTemperatureValue">1.0</div>
+                    </div>
+                </div>
+
+                <div class="settings-divider"></div>
+
+                <!-- ── THINKING ── -->
+                <div class="setting-section setting-section-toggle">
+                    <div class="setting-toggle-row">
+                        <div>
+                            <div class="setting-name">Extended thinking</div>
+                            <div class="setting-desc">Lets the AI think step-by-step before responding.</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="settingThinkingEnabled">
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-section" id="settingThinkingBudgetSection">
+                    <div class="setting-name">Thinking depth</div>
+                    <div class="setting-desc">How long the AI can think before responding</div>
+                    <div class="snap-selector" id="settingThinkingBudget">
+                        <button class="snap-btn" data-value="1024">Quick</button>
+                        <button class="snap-btn" data-value="3000">Standard</button>
+                        <button class="snap-btn" data-value="8000">Deep</button>
+                        <button class="snap-btn" data-value="15000">Extended</button>
+                    </div>
+                </div>
+
+                <div class="settings-divider"></div>
+
+                <!-- ── CONTEXT ── -->
+                <div class="setting-section">
+                    <div class="setting-name">Conversation window</div>
+                    <div class="setting-desc" id="settingRecentTokensDesc">How much recent conversation the AI sees at once</div>
+                    <div class="snap-selector" id="settingRecentTokens">
+                        <button class="snap-btn" data-value="10000">Concise</button>
+                        <button class="snap-btn" data-value="50000">Standard</button>
+                        <button class="snap-btn" data-value="100000">Long</button>
+                        <button class="snap-btn" data-value="125000">Maximum</button>
+                        <button class="snap-btn snap-btn-extended" data-value="500000">Extended<br><span>500k</span></button>
+                        <button class="snap-btn snap-btn-extended" data-value="850000">Near full<br><span>850k</span></button>
+                    </div>
+                </div>
+
+                <div class="settings-divider"></div>
+
+                <!-- ── RETRIEVAL ── -->
+                <div class="settings-scope-label">All profiles</div>
+                <div class="setting-section">
+                    <div class="setting-name">Retrieval sensitivity</div>
+                    <div class="setting-desc">How closely memories must match to get shown to AI. Lower is broader.</div>
+                    <div class="setting-slider-wrap">
+                        <input class="setting-slider" type="range" id="settingRetrieval" min="0.1" max="0.6" step="0.05">
+                        <div class="setting-slider-value" id="settingRetrievalValue">0.25</div>
+                    </div>
+                </div>
+
+                <div class="setting-section">
+                    <div class="setting-name">Memory retrieval limit</div>
+                    <div class="setting-desc">How many past messages get surfaced per response</div>
+                    <div class="setting-slider-wrap">
+                        <input class="setting-slider" type="range" id="settingMaxRetrieval" min="3" max="30" step="1">
+                        <div class="setting-slider-value" id="settingMaxRetrievalValue">10</div>
+                    </div>
+                </div>
+
+                <div class="setting-section">
+                    <div class="setting-name">Topic profiles per turn</div>
+                    <div class="setting-desc">How many people and topic profiles get loaded each turn</div>
+                    <div class="setting-slider-wrap">
+                        <input class="setting-slider" type="range" id="settingMaxEntities" min="1" max="8" step="1">
+                        <div class="setting-slider-value" id="settingMaxEntitiesValue">3</div>
+                    </div>
+                </div>
+
+                <div class="setting-section">
+                    <div class="setting-name">Concepts per turn</div>
+                    <div class="setting-desc">How many keyword-triggered background entries load per response</div>
+                    <div class="setting-slider-wrap">
+                        <input class="setting-slider" type="range" id="settingMaxConcepts" min="1" max="5" step="1">
+                        <div class="setting-slider-value" id="settingMaxConceptsValue">2</div>
+                    </div>
+                </div>
+
+                <div class="setting-section">
+                    <div class="setting-name">Recent files shown</div>
+                    <div class="setting-desc">How many recent file attachments the AI is aware of</div>
+                    <div class="setting-slider-wrap">
+                        <input class="setting-slider" type="range" id="settingMaxFiles" min="1" max="15" step="1">
+                        <div class="setting-slider-value" id="settingMaxFilesValue">5</div>
+                    </div>
+                </div>
+
+                <div class="setting-section">
+                    <div class="setting-name">Retrieval weights</div>
+                    <div class="setting-desc retrieval-weights-desc">
+                        <span>Controls how memories are ranked when retrieved.</span>
+                        <span class="retrieval-weight-glossary">
+                            <span><strong>Meaning</strong> how closely they match what you're saying</span>
+                            <span><strong>Importance</strong> how significant they were</span>
+                            <span><strong>Recency</strong> how recent</span>
+                            <span><strong>Topics</strong> whether they involve the same people or subjects</span>
+                        </span>
+                    </div>
+                    <div class="setting-weights-bar" id="settingWeightsBar">
+                        <div class="weight-zone weight-semantic" id="weightSemantic">
+                            <span class="weight-label">Meaning</span>
+                            <span class="weight-value" id="weightSemanticValue">0.4</span>
+                        </div>
+                        <div class="weight-handle" id="weightHandle1" tabindex="0"></div>
+                        <div class="weight-zone weight-importance" id="weightImportance">
+                            <span class="weight-label">Importance</span>
+                            <span class="weight-value" id="weightImportanceValue">0.4</span>
+                        </div>
+                        <div class="weight-handle" id="weightHandle2" tabindex="0"></div>
+                        <div class="weight-zone weight-recency" id="weightRecency">
+                            <span class="weight-label">Recency</span>
+                            <span class="weight-value" id="weightRecencyValue">0.2</span>
+                        </div>
+                        <div class="weight-handle" id="weightHandle3" tabindex="0"></div>
+                        <div class="weight-zone weight-entity-match" id="weightEntityMatch">
+                            <span class="weight-label">Topics</span>
+                            <span class="weight-value" id="weightEntityMatchValue">0.15</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-section">
+                    <div class="setting-name">Deep archive age</div>
+                    <div class="setting-desc">Messages older than this require @recall --deep to search</div>
+                    <div class="setting-slider-wrap">
+                        <input class="setting-slider" type="range" id="settingArchiveAge" min="30" max="365" step="15">
+                        <div class="setting-slider-value" id="settingArchiveAgeValue">180</div>
+                    </div>
+                </div>
+
+                <div class="settings-divider"></div>
+
+                <!-- ── FEATURES ── -->
+                <div class="settings-scope-label">Profile settings</div>
+                <div class="setting-section">
+                    <div class="setting-name">Features</div>
+                </div>
+
+                <div class="setting-section setting-section-toggle">
+                    <div class="setting-toggle-row">
+                        <div>
+                            <div class="setting-toggle-name">Narrative concepts</div>
+                            <div class="setting-desc">Background knowledge that activates based on keywords</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="settingConcepts">
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-section setting-section-toggle">
+                    <div class="setting-toggle-row">
+                        <div>
+                            <div class="setting-toggle-name">Topic profiles</div>
+                            <div class="setting-desc">Remembered profiles of people and topics</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="settingEntities">
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-section setting-section-toggle">
+                    <div class="setting-toggle-row">
+                        <div>
+                            <div class="setting-toggle-name">File attachments</div>
+                            <div class="setting-desc">Images, PDFs, text, and JSON files</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="settingAttachments">
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-section setting-section-toggle">
+                    <div class="setting-toggle-row">
+                        <div>
+                            <div class="setting-toggle-name">Text-to-speech</div>
+                            <div class="setting-desc">Read responses aloud. Requires an ElevenLabs API key.</div>
+                            <a href="https://elevenlabs.io/app/voice-library" target="_blank" class="setting-feature-link" id="ttsVoiceLink" style="display:none">Browse voices on ElevenLabs</a>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="settingTTS">
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-section setting-section-toggle">
+                    <div class="setting-toggle-row">
+                        <div>
+                            <div class="setting-toggle-name">Timeline</div>
+                            <div class="setting-desc">Daily summaries of your recent conversations, last 7 days</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="settingTimeline">
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-section setting-section-toggle">
+                    <div class="setting-toggle-row">
+                        <div>
+                            <div class="setting-toggle-name">AI Notes</div>
+                            <div class="setting-desc">Notes the AI keeps about you and ongoing topics</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="settingNotes">
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ── SAVE ── -->
+                <button class="settings-save-btn" id="settingsSaveBtn">Save changes</button>
+                <div class="settings-save-status" id="settingsSaveStatus"></div>
+
+                <!-- ── SYSTEM INSTRUCTIONS ── -->
+                <div class="setting-section sys-instructions-section">
+                    <div class="setting-name">System instructions</div>
+                    <div class="setting-desc">Placeholders like {instance_name} and {max_iterations} are filled in automatically — keep them as-is.</div>
+                    <textarea class="sys-instructions-editor" id="sysInstructionsEditor" spellcheck="false" disabled></textarea>
+                    <div class="sys-instructions-actions">
+                        <button class="setting-action-btn" id="sysInstructionsResetBtn">Reset to template</button>
+                        <button class="settings-save-btn sys-instructions-save-btn" id="sysInstructionsSaveBtn">Save instructions</button>
+                    </div>
+                    <div class="settings-save-status" id="sysInstructionsStatus"></div>
+                </div>
+
+                <div class="settings-divider"></div>
+
+                <!-- ── API KEYS ── -->
+                <div class="settings-scope-label">All profiles</div>
+                <div class="setting-section">
+                    <div class="setting-name">API Keys</div>
+                    <div class="setting-desc">Keys are stored locally and sent only to their respective providers</div>
+                    <div class="setting-identity-row">
+                        <div class="setting-identity-fields" id="apiKeyFields">
+                            <div class="setting-identity-field">
+                                <span class="setting-identity-label">Anthropic</span>
+                                <input type="password" class="setting-text-input" id="settingAnthropicKey" placeholder="sk-ant-..." disabled>
+                            </div>
+                            <div class="setting-identity-field">
+                                <span class="setting-identity-label">OpenAI</span>
+                                <input type="password" class="setting-text-input" id="settingOpenaiKey" placeholder="sk-..." disabled>
+                            </div>
+                            <div class="setting-identity-field">
+                                <span class="setting-identity-label">ElevenLabs</span>
+                                <input type="password" class="setting-text-input" id="settingElevenlabsKey" placeholder="Optional" disabled>
+                            </div>
+                        </div>
+                        <button class="setting-edit-btn" id="apiKeyEditBtn">Edit</button>
+                    </div>
+                </div>
+
+                <div class="settings-divider"></div>
+
+                <!-- ── EMBEDDINGS ── -->
+                <div class="settings-scope-label">All profiles</div>
+                <div class="setting-section">
+                    <div class="setting-name">Embeddings</div>
+                    <div class="setting-desc">How your messages are indexed for memory search. Re-index if you switched to on-device embeddings or imported older messages.</div>
+                    <button class="setting-action-btn" id="manageEmbeddingsBtn">Check embeddings</button>
+                    <div class="setting-action-status" id="manageEmbeddingsStatus"></div>
+                </div>
+
+                <div class="settings-divider"></div>
+
+                <!-- ── SYSTEM ── -->
+                <div class="settings-scope-label">All profiles</div>
+                <div class="setting-section setting-section-toggle">
+                    <div class="setting-toggle-row">
+                        <div>
+                            <div class="setting-toggle-name">Keep this PC awake while Mneme is running</div>
+                            <div class="setting-desc" id="keepAwakeDesc">Stops the computer from sleeping so phones and other devices can stay connected. The screen can still turn off.</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="settingKeepAwake">
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-divider"></div>
+
+                <!-- ── PROFILE DATA ── -->
+                <div class="setting-section">
+                    <div class="setting-name">Transcript</div>
+                    <div class="setting-desc">Download this profile's conversation</div>
+                    <div class="transcript-format-selector markdown-active" id="exportTranscriptFormat" role="group" aria-label="Transcript format">
+                        <button type="button" class="transcript-format-option active" data-format="markdown">
+                            <span class="transcript-format-name">Markdown</span>
+                            <span class="transcript-format-desc">Easy to open and read</span>
+                        </button>
+                        <button type="button" class="transcript-format-option" data-format="json">
+                            <span class="transcript-format-name">Importable JSON</span>
+                            <span class="transcript-format-desc">For moving into a fresh install</span>
+                        </button>
+                    </div>
+                    <button class="setting-action-btn" id="exportTranscriptBtn">Export transcript</button>
+                    <div class="setting-action-status" id="exportTranscriptStatus"></div>
+                </div>
+
+                <div class="settings-divider"></div>
+
+                <!-- ── STATS (read-only) ── -->
+                <div class="setting-section">
+                    <div class="setting-name">Context budgets</div>
+                    <div class="stats-grid">
+                        <span class="stats-label">Recent</span>
+                        <span class="stats-value" id="statRecentBudget">—</span>
+                        <span class="stats-label">Memory</span>
+                        <span class="stats-value" id="statMemoryBudget">—</span>
+                        <span class="stats-label">Entity</span>
+                        <span class="stats-value" id="statEntityBudget">—</span>
+                        <span class="stats-label">Concept</span>
+                        <span class="stats-value" id="statConceptBudget">—</span>
+                    </div>
+                </div>
+
+                <div class="setting-section">
+                    <div class="setting-name">Memory tiers</div>
+                    <div class="stats-grid">
+                        <span class="stats-label">Active</span>
+                        <span class="stats-value" id="statActiveTier">—</span>
+                        <span class="stats-label">Standard</span>
+                        <span class="stats-value" id="statStandardTier">—</span>
+                        <span class="stats-label">Deep archive</span>
+                        <span class="stats-value" id="statDeepTier">—</span>
+                    </div>
+                </div>
+
+                <div class="setting-section">
+                    <a href="https://console.anthropic.com/workspaces/default/cost" target="_blank" class="settings-external-link">
+                        View usage on Anthropic Console
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Model change confirmation popup -->
+        <div class="settings-confirm-overlay" id="settingsConfirmOverlay">
+            <div class="settings-confirm-box">
+                <div class="settings-confirm-text" id="settingsConfirmText"></div>
+                <div class="settings-confirm-actions">
+                    <button class="settings-confirm-cancel" id="settingsConfirmCancel">Cancel</button>
+                    <button class="settings-confirm-ok" id="settingsConfirmOk">Change</button>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /app-container -->
+
+    <!-- Loading Indicator (hidden) -->
+    <div class="loading-indicator" id="loadingIndicator">
+        <span class="loading-dots">AI is thinking</span>
+    </div>
+
+    <!-- Error Banner -->
+    <div class="error-banner" id="errorBanner" role="alert">
+        <span class="error-message" id="errorMessage"></span>
+        <button class="error-close" id="errorClose" aria-label="Close error message">&times;</button>
+    </div>
+
+
+
+
+    <p class="desktop-hint" aria-hidden="true">Mneme is best experienced on a mobile device</p>
+    <p class="resize-notice">Make the window a little taller to use Mneme</p>
+
+    <!-- Mobile access notification — shown once on first desktop visit -->
+    <div class="mobile-notify-overlay" id="mobileNotifyOverlay">
+        <div class="mobile-notify-card">
+            <div class="mobile-notify-title">Mneme is designed for your phone</div>
+            <div class="mobile-notify-body">
+                This runs on your computer, but the best experience is from your phone's browser via Tailscale.
+                <br><br>
+                If the installer set up Tailscale, just install the Tailscale app on your phone, sign in with the same account, and visit this address:
+                <div class="mobile-notify-url" id="mobileNotifyUrl"></div>
+                <span class="mobile-notify-hint">You can always use it from desktop too — this is just a heads up!</span>
+            </div>
+            <button class="mobile-notify-dismiss" id="mobileNotifyDismiss">Got it</button>
+        </div>
+    </div>
+
+    <!-- Embedding migration modal -->
+    <div class="migration-overlay" id="migrationOverlay">
+        <div class="migration-card">
+            <div class="migration-title" id="migrationTitle">Migrate to new embeddings</div>
+            <div class="migration-body" id="migrationBody"></div>
+
+            <div class="migration-progress" id="migrationProgress" hidden>
+                <canvas class="wave-progress-canvas" id="migrationProgressWave" aria-hidden="true"></canvas>
+                <div class="migration-progress-label" id="migrationProgressLabel"></div>
+            </div>
+
+            <div class="migration-actions" id="migrationActions">
+                <button class="migration-btn-secondary" id="migrationSecondaryBtn">Not now</button>
+                <button class="migration-btn-primary" id="migrationPrimaryBtn">Migrate now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data relocation offer — one-time, offers to move data out of the app folder -->
+    <div class="migration-overlay" id="relocationOverlay">
+        <div class="migration-card">
+            <div class="migration-title" id="relocationTitle">Move your memories to a safer home</div>
+            <div class="migration-body" id="relocationBody"></div>
+
+            <div class="migration-progress" id="relocationProgress" hidden>
+                <canvas class="wave-progress-canvas" id="relocationProgressWave" aria-hidden="true"></canvas>
+                <div class="migration-progress-label" id="relocationProgressLabel"></div>
+            </div>
+
+            <div class="migration-actions" id="relocationActions">
+                <button class="migration-btn-secondary" id="relocationLaterBtn">Not now</button>
+                <button class="migration-btn-primary" id="relocationPrimaryBtn">Move my data</button>
+            </div>
+            <button class="relocation-decline-btn" id="relocationDeclineBtn">Don't ask again</button>
+
+            <div class="migration-actions" id="relocationDoneActions" hidden>
+                <button class="migration-btn-primary" id="relocationGotItBtn">Got it</button>
+            </div>
+
+            <div class="migration-actions" id="relocationErrorActions" hidden>
+                <button class="migration-btn-secondary" id="relocationCloseBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js?v=20260707-lock2"></script>
+</body>
+</html>
